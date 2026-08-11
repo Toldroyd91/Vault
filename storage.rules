@@ -1,0 +1,24 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isStaff() {
+      return request.auth != null &&
+        (request.auth.token.role == 'designer' || request.auth.token.role == 'admin');
+    }
+
+    // Generated dossier/quote PDFs. Served only via the signed URL that
+    // compilePDF returns — never listable, never publicly readable by path.
+    match /pdfs/{fileName} {
+      allow read: if false;
+      allow write: if false; // written only by the Cloud Function (Admin SDK)
+    }
+
+    // Anything staff upload directly from the dashboard (renders, site
+    // photos taken from the office, brochures, etc).
+    match /staff-uploads/{allPaths=**} {
+      allow read, write: if isStaff();
+    }
+  }
+}

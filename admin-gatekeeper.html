@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Designer Control | Gatekeeper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    </script>
+    <style>
+        #mobileNavOverlay { display: none; }
+        #mobileNavOverlay.active { display: block; }
+    </style>
+</head>
+<body class="bg-[#050505] text-white overflow-hidden flex h-screen w-full">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between bg-[#161b22] p-4 border-b border-[#30363d] absolute top-0 w-full z-40 shadow-md">
+        <h2 class="text-white font-black uppercase text-lg m-0">COHI<span class="text-[#0dcaf0]">PRO</span></h2>
+        <button id="mobileMenuBtn" class="text-white text-2xl p-2">☰</button>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileNavOverlay" class="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- GLOBAL SIDEBAR NAVIGATION -->
+    <nav id="appSidebar" class="w-64 md:w-72 bg-[#090d13] border-r border-[#30363d] h-full flex flex-col fixed md:relative z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+        <div class="p-6 border-b border-[#30363d] flex justify-between items-center bg-[#05080c]">
+            <h2 class="text-white font-black uppercase text-xl m-0 tracking-widest">COHI<span class="text-[#0dcaf0]">PRO</span></h2>
+            <button id="closeMenuBtn" class="md:hidden text-gray-400 hover:text-white text-xl">✕</button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-4">
+            <a href="index.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">📊</span> Pipeline
+            </a>
+            <a href="property-intel.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">🌍</span> Site Intel
+            </a>
+            <a href="survey.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">📝</span> Survey Engine
+            </a>
+            <a href="admin-gatekeeper.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-[#0dcaf0] bg-[#0dcaf0]/10 border border-[#0dcaf0]/30 shadow-[inset_4px_0_0_#0dcaf0] transition">
+                <span class="text-lg">🔒</span> Gatekeeper
+            </a>
+            <a href="pdf-compiler.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">🗂️</span> Dossiers
+            </a>
+        </div>
+    </nav>
+
+    <!-- MAIN SCROLLABLE WORKSPACE -->
+    <main class="flex-1 h-full overflow-y-auto p-4 md:p-10 relative pt-20 md:pt-10 bg-[#0d1117]">
+        
+        <div class="max-w-3xl mx-auto space-y-6">
+            <header class="flex justify-between items-center border-b border-[#30363d] pb-6 mb-4">
+                <div>
+                    <h1 class="text-2xl font-black text-white uppercase tracking-widest m-0">Project Gatekeeper</h1>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mt-2">Access & Financial Controls</p>
+                </div>
+                <div id="statusBadge" class="px-4 py-2 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 rounded-lg text-xs font-bold uppercase tracking-widest shadow-sm">
+                    Status: Tease Mode
+                </div>
+            </header>
+
+            <!-- UDESIGN UPLOAD SECTION -->
+            <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 md:p-8 shadow-xl">
+                <h2 class="text-xs font-bold text-[#0dcaf0] uppercase tracking-widest mb-6 border-b border-[#30363d] pb-3">1. Push UDesign Assets to Vault</h2>
+
+                <div id="signatureStatusBanner" class="hidden mb-6 p-4 bg-emerald-500/10 border border-emerald-500/40 rounded-lg">
+                    <p class="text-sm text-emerald-400 font-bold" id="signatureStatusText"></p>
+                </div>
+
+                <div class="mb-6 pb-6 border-b border-[#30363d] border-dashed">
+                    <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Optional: Auto-fill from Quote PDF</label>
+                    <input type="file" id="pdfAutoFillInput" accept="application/pdf" class="w-full bg-[#090d13] border border-[#30363d] text-gray-400 p-3 rounded text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[#161b22] file:text-white hover:file:bg-gray-800 transition cursor-pointer">
+                    <p id="autoFillStatus" class="text-[11px] text-gray-500 mt-2 hidden"></p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Contract Total (£)</label>
+                        <input type="text" id="priceTotal" class="w-full bg-[#090d13] border border-[#30363d] text-white p-3 rounded font-mono text-lg focus:border-[#0dcaf0] outline-none transition" placeholder="e.g. 19724.00">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Required Deposit (£)</label>
+                        <input type="text" id="priceDeposit" class="w-full bg-[#090d13] border border-[#30363d] text-white p-3 rounded font-mono text-lg focus:border-[#0dcaf0] outline-none transition" placeholder="e.g. 2959.00">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Upload UDesign 3D Renders</label>
+                    <input type="file" id="uploadRenders" multiple accept="image/*" class="w-full bg-[#090d13] border border-[#30363d] text-gray-400 p-3 rounded text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[#161b22] file:text-white hover:file:bg-gray-800 transition cursor-pointer">
+                </div>
+
+                <button id="btnPushDesign" class="w-full py-4 bg-[#21262d] hover:bg-[#30363d] text-white font-bold uppercase tracking-widest rounded-lg transition border border-[#30363d] shadow-sm">
+                    Lock In Designs & Price
+                </button>
+            </div>
+
+            <!-- THE SALES SWITCH -->
+            <div class="bg-[#161b22] border-t-4 border-[#E50914] rounded-xl p-6 md:p-8 shadow-xl text-center mt-8 transition-colors duration-500" id="switchContainer">
+                <h2 class="text-lg font-black text-white uppercase tracking-widest mb-2">Live Customer Vault Access</h2>
+                <p class="text-xs text-gray-400 mb-8 max-w-lg mx-auto">Flicking this switch instantly unlocks the financial breakdown and contractual scope of works on the customer's remote device.</p>
+                
+                <button id="btnToggleAccess" class="w-full py-5 bg-[#E50914] text-white font-black text-lg md:text-xl uppercase tracking-widest rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(229,9,20,0.3)]">
+                    🔓 GRANT FULL ACCESS
+                </button>
+            </div>
+
+            <!-- APPOINTMENT RECORDING (Rilla) -->
+            <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 md:p-8 shadow-xl mt-8" id="rillaPanel">
+                <h2 class="text-xs font-bold text-[#0dcaf0] uppercase tracking-widest mb-4 border-b border-[#30363d] pb-3">Appointment Recording</h2>
+                <div id="rillaContent">
+                    <p class="text-xs text-gray-500">No recording linked yet. Once Rilla's webhook is confirmed and pointed at this project, the recording, transcript and AI summary will appear here automatically.</p>
+                </div>
+            </div>
+
+            <!-- VAULT ANALYTICS -->
+            <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 md:p-8 shadow-xl mt-8">
+                <h2 class="text-xs font-bold text-[#0dcaf0] uppercase tracking-widest mb-6 border-b border-[#30363d] pb-3">Vault Analytics</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-black/30 rounded-lg p-4">
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Total Time in Vault</p>
+                        <p class="text-xl font-black text-white" id="an-total-time">--</p>
+                    </div>
+                    <div class="bg-black/30 rounded-lg p-4">
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Last Active</p>
+                        <p class="text-xl font-black text-white" id="an-last-active">--</p>
+                    </div>
+                    <div class="bg-black/30 rounded-lg p-4">
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Quote Revealed</p>
+                        <p class="text-xl font-black text-white" id="an-quote-revealed">--</p>
+                    </div>
+                    <div class="bg-black/30 rounded-lg p-4">
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Photos Viewed</p>
+                        <p class="text-xl font-black text-white" id="an-photos-viewed">--</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Design Engagement — which concept is winning</p>
+                    <div id="an-render-engagement" class="space-y-2">
+                        <p class="text-xs text-gray-500">No design renders viewed yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE CHAT -->
+            <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 md:p-8 shadow-xl mt-8">
+                <h2 class="text-xs font-bold text-[#0dcaf0] uppercase tracking-widest mb-6 border-b border-[#30363d] pb-3">Live Chat with Customer</h2>
+                <div id="chat-messages" class="space-y-3 mb-4 max-h-96 overflow-y-auto bg-black/20 rounded-lg p-4">
+                    <p class="text-xs text-gray-500 italic">No messages yet.</p>
+                </div>
+                <form id="chat-form" class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Reply to customer..." class="flex-1 bg-[#090d13] border border-[#30363d] text-white p-3 rounded text-sm focus:border-[#0dcaf0] outline-none transition" maxlength="1000" autocomplete="off">
+                    <button type="submit" class="px-6 py-3 bg-[#0dcaf0] text-black font-bold rounded-lg hover:bg-[#0bb8db] transition">Send</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const toggleMenu = () => {
+            document.getElementById('appSidebar').classList.toggle('-translate-x-full');
+            document.getElementById('mobileNavOverlay').classList.toggle('active');
+        };
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', toggleMenu);
+        document.getElementById('closeMenuBtn')?.addEventListener('click', toggleMenu);
+        document.getElementById('mobileNavOverlay')?.addEventListener('click', toggleMenu);
+    </script>
+    <script type="module">
+        import { db, doc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp } from './js/core-firebase.js';
+        
+        const projectId = new URLSearchParams(window.location.search).get('id');
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkhhz0f9/image/upload"; 
+        let currentAccess = 'design_tease';
+        let priceFieldsTouchedByUser = false;
+
+        if(!projectId) alert("No Project ID found in URL. Please launch from the main Dashboard.");
+
+        // Track manual edits so a live doc update (e.g. from the PDF
+        // auto-fill below) never silently overwrites something the
+        // designer is actively typing.
+        document.getElementById('priceTotal').addEventListener('input', () => priceFieldsTouchedByUser = true);
+        document.getElementById('priceDeposit').addEventListener('input', () => priceFieldsTouchedByUser = true);
+
+        // Listen to live database state
+        if(projectId) {
+            onSnapshot(doc(db, "surveys", projectId), (snap) => {
+                const data = snap.data();
+                if(!data) return;
+                
+                currentAccess = data.vaultAccessLevel || 'design_tease';
+
+                // Show the REAL current price rather than leaving staff to
+                // guess whether these fields are blank because no price has
+                // been set yet, or because the page just hasn't loaded it.
+                if (!priceFieldsTouchedByUser) {
+                    const existingTotal = data.uDesignData?.totalPrice;
+                    const existingDeposit = data.uDesignData?.deposit;
+                    if (existingTotal) document.getElementById('priceTotal').value = String(existingTotal).replace(/[£,]/g, '');
+                    if (existingDeposit) document.getElementById('priceDeposit').value = String(existingDeposit).replace(/[£,]/g, '');
+                }
+                
+                const badge = document.getElementById('statusBadge');
+                const btn = document.getElementById('btnToggleAccess');
+                const switchContainer = document.getElementById('switchContainer');
+                
+                if(currentAccess === 'full_access') {
+                    badge.className = "px-4 py-2 bg-green-500/10 text-[#238636] border border-[#238636]/50 rounded-lg text-xs font-bold uppercase tracking-widest shadow-sm";
+                    badge.innerText = "Status: Fully Unlocked";
+                    
+                    switchContainer.classList.replace('border-[#E50914]', 'border-[#238636]');
+                    
+                    btn.className = "w-full py-5 bg-[#238636] text-white font-black text-lg md:text-xl uppercase tracking-widest rounded-xl transition-all duration-300 shadow-[0_0_25px_rgba(35,134,54,0.4)]";
+                    btn.innerText = "🔒 REVOKE ACCESS (HIDE PRICE)";
+                } else {
+                    badge.className = "px-4 py-2 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 rounded-lg text-xs font-bold uppercase tracking-widest shadow-sm";
+                    badge.innerText = "Status: Tease Mode";
+                    
+                    switchContainer.classList.replace('border-[#238636]', 'border-[#E50914]');
+                    
+                    btn.className = "w-full py-5 bg-[#E50914] text-white font-black text-lg md:text-xl uppercase tracking-widest rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(229,9,20,0.3)]";
+                    btn.innerText = "🔓 GRANT FULL ACCESS";
+                }
+
+                renderAnalytics(data.vaultTelemetry);
+                renderRillaRecording(data.rillaRecording);
+                renderSignatureStatus(data.readyToProceed);
+
+                // Customer has this page open — clear the unread flag now
+                // that a designer is actively looking at this project.
+                if (data.hasUnreadClientMessage) {
+                    updateDoc(doc(db, "surveys", projectId), { hasUnreadClientMessage: false }).catch(() => {});
+                }
+            }, (err) => {
+                console.error(err);
+                const badge = document.getElementById('statusBadge');
+                badge.className = "px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/50 rounded-lg text-xs font-bold uppercase tracking-widest shadow-sm";
+                badge.innerText = err.code === 'permission-denied' ? "Sign in required" : "Connection error";
+                if (err.code === 'permission-denied') {
+                    alert("You're not signed in with staff access, or your session has expired. Sign in on the main Dashboard first, then relaunch this page from a project card.");
+                }
+            });
+
+            startChatListener();
+        }
+
+        function renderSignatureStatus(readyToProceed) {
+            const banner = document.getElementById('signatureStatusBanner');
+            const text = document.getElementById('signatureStatusText');
+            if (!readyToProceed) {
+                banner.classList.add('hidden');
+                return;
+            }
+            banner.classList.remove('hidden');
+            const date = readyToProceed.confirmedAt?.toDate ? readyToProceed.confirmedAt.toDate().toLocaleString('en-GB') : '';
+            text.innerText = `✓ Customer confirmed they're ready to proceed${date ? ' — ' + date : ''}. Reach out to arrange your contract and payment.`;
+        }
+
+        function renderRillaRecording(recording) {
+            const el = document.getElementById('rillaContent');
+            if (!recording) {
+                el.innerHTML = `<p class="text-xs text-gray-500">No recording linked yet. Once Rilla's webhook is confirmed and pointed at this project, the recording, transcript and AI summary will appear here automatically.</p>`;
+                return;
+            }
+            el.innerHTML = `
+                ${recording.recordingUrl ? `<audio controls class="w-full mb-4"><source src="${recording.recordingUrl}"></audio>` : ''}
+                ${recording.repName ? `<p class="text-xs text-gray-400 mb-2"><strong class="text-white">Rep:</strong> ${recording.repName}</p>` : ''}
+                ${recording.summary ? `<div class="bg-black/30 rounded-lg p-4 mb-3"><p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">AI Summary</p><p class="text-sm text-gray-300">${recording.summary}</p></div>` : ''}
+                ${recording.transcript ? `<details class="text-xs text-gray-400"><summary class="cursor-pointer text-[#0dcaf0]">View full transcript</summary><p class="mt-2 whitespace-pre-wrap">${recording.transcript}</p></details>` : ''}
+            `;
+        }
+
+        function renderAnalytics(telemetry) {
+            const t = telemetry || {};
+            document.getElementById('an-total-time').innerText = t.totalViewTimeSeconds
+                ? `${Math.floor(t.totalViewTimeSeconds / 60)}m ${Math.round(t.totalViewTimeSeconds % 60)}s`
+                : '0m';
+            document.getElementById('an-last-active').innerText = t.lastActive
+                ? new Date(t.lastActive).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+                : 'Never';
+            document.getElementById('an-quote-revealed').innerText = t.hasRevealedQuote ? 'Yes' : 'Not yet';
+            document.getElementById('an-photos-viewed').innerText = t.photosViewed || 0;
+
+            const engagementEl = document.getElementById('an-render-engagement');
+            const renderTimes = t.renderEngagementSeconds || {};
+            const entries = Object.entries(renderTimes).sort((a, b) => b[1] - a[1]);
+            if (entries.length === 0) {
+                engagementEl.innerHTML = `<p class="text-xs text-gray-500">No design renders viewed yet.</p>`;
+                return;
+            }
+            const maxSeconds = entries[0][1];
+            engagementEl.innerHTML = entries.map(([idx, secs]) => {
+                const pct = maxSeconds > 0 ? Math.round((secs / maxSeconds) * 100) : 0;
+                return `
+                    <div>
+                        <div class="flex justify-between text-[11px] text-gray-400 mb-1">
+                            <span>Design Concept ${Number(idx) + 1}${idx === entries[0][0] ? ' <span class=\'text-[#238636] font-bold\'>← Most viewed</span>' : ''}</span>
+                            <span>${Math.round(secs)}s</span>
+                        </div>
+                        <div class="h-2 bg-black/40 rounded-full overflow-hidden">
+                            <div class="h-full bg-[#0dcaf0]" style="width:${pct}%"></div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        // ==========================================
+        // LIVE CHAT
+        // ==========================================
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function startChatListener() {
+            const q = query(collection(db, "surveys", projectId, "messages"), orderBy("timestamp", "asc"));
+            onSnapshot(q, (snap) => {
+                const container = document.getElementById('chat-messages');
+                if (snap.empty) {
+                    container.innerHTML = `<p class="text-xs text-gray-500 italic">No messages yet.</p>`;
+                    return;
+                }
+                container.innerHTML = snap.docs.map((d) => {
+                    const m = d.data();
+                    const isClient = m.role === 'Client';
+                    const time = m.timestamp?.toDate ? m.timestamp.toDate().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
+                    return `
+                        <div style="display:flex; ${isClient ? 'justify-content:flex-start;' : 'justify-content:flex-end;'}">
+                            <div style="max-width: 80%; padding: 8px 12px; border-radius: 8px; ${isClient ? 'background:#21262d; color:#e6edf3;' : 'background:#0dcaf0; color:#000;'}">
+                                <p style="font-size:9px; text-transform:uppercase; opacity:0.6; margin:0 0 2px 0;">${escapeHtml(m.sender || (isClient ? 'Client' : 'You'))}</p>
+                                <p style="font-size:13px; margin:0;">${escapeHtml(m.text || '')}</p>
+                                <p style="font-size:9px; opacity:0.5; margin:4px 0 0 0; text-align:right;">${time}</p>
+                            </div>
+                        </div>`;
+                }).join('');
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!projectId) return;
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            try {
+                await addDoc(collection(db, "surveys", projectId, "messages"), {
+                    sender: 'Your Designer',
+                    role: 'Designer',
+                    text: text,
+                    timestamp: serverTimestamp(),
+                });
+            } catch (err) {
+                console.error(err);
+                input.value = text;
+                alert("Couldn't send — check you're signed in.");
+            }
+        });
+
+
+        // Toggle Switch Logic
+        document.getElementById('btnToggleAccess').addEventListener('click', async () => {
+            if(!projectId) return;
+            const newState = currentAccess === 'full_access' ? 'design_tease' : 'full_access';
+            await updateDoc(doc(db, "surveys", projectId), { vaultAccessLevel: newState });
+        });
+
+        // ==========================================
+        // AUTO-FILL FROM QUOTE PDF
+        // ==========================================
+        // Consolidates the two separate regex-extraction tools that used
+        // to live in index.html's embedded "Project Gatekeeper" module and
+        // in quotes.html — both wrote to different, disconnected fields
+        // and neither gave the designer a chance to review before saving.
+        // This version only fills the fields above; it never saves on its
+        // own — "Lock In Designs & Price" below is still the one save
+        // action, so there's one clear moment of confirmation.
+        document.getElementById('pdfAutoFillInput')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('autoFillStatus');
+            statusEl.classList.remove('hidden');
+            statusEl.innerText = "Reading PDF...";
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = "";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    fullText += content.items.map(item => item.str).join(" ") + " ";
+                }
+
+                // Try a few known quote formats — generic "CONTRACT TOTAL",
+                // and the U-Design "GRAND TOTAL" format.
+                const totalMatch = fullText.match(/(?:CONTRACT\s*TOTAL|GRAND\s*TOTAL)\s*£?\s*([\d,]+\.\d{2})/i);
+                const depositMatch = fullText.match(/DEPOSIT\s*£?\s*([\d,]+\.\d{2})/i);
+
+                if (totalMatch) {
+                    document.getElementById('priceTotal').value = totalMatch[1].replace(/,/g, '');
+                    priceFieldsTouchedByUser = true;
+                }
+                if (depositMatch) {
+                    document.getElementById('priceDeposit').value = depositMatch[1].replace(/,/g, '');
+                    priceFieldsTouchedByUser = true;
+                }
+
+                statusEl.innerText = totalMatch
+                    ? `Found total${depositMatch ? ' and deposit' : ''} — review the fields above before locking in.`
+                    : "Couldn't find a total on this PDF — please enter the price manually.";
+            } catch (err) {
+                console.error(err);
+                statusEl.innerText = "Couldn't read that PDF — please enter the price manually.";
+            }
+        });
+
+        // Handle UDesign Uploads
+        document.getElementById('btnPushDesign').addEventListener('click', async () => {
+            if(!projectId) return;
+            const btn = document.getElementById('btnPushDesign');
+            const files = document.getElementById('uploadRenders').files;
+            const total = document.getElementById('priceTotal').value.trim();
+            const deposit = document.getElementById('priceDeposit').value.trim();
+
+            if (!total) {
+                alert("Enter a contract total before locking in — this is what the customer will eventually see.");
+                return;
+            }
+
+            const originalText = btn.innerText;
+            btn.innerText = "Uploading Assets..."; 
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            try {
+                const urls = [];
+                for(let i=0; i<files.length; i++) {
+                    const fd = new FormData(); 
+                    fd.append('file', files[i]); 
+                    fd.append('upload_preset', 'crm_document_uploads');
+                    const res = await fetch(CLOUDINARY_URL, {method: 'POST', body: fd});
+                    const json = await res.json();
+                    if(json.secure_url) urls.push(json.secure_url);
+                }
+
+                await updateDoc(doc(db, "surveys", projectId), {
+                    "uDesignData.totalPrice": `£${total}`,
+                    "uDesignData.deposit": deposit ? `£${deposit}` : null,
+                    "uDesignData.renders": urls.length > 0 ? urls : null,
+                    "vaultAccessLevel": "design_tease" // Pushing designs sets it to tease mode automatically
+                });
+
+                alert("UDesign data successfully pushed to Customer Vault.");
+            } catch(e) {
+                console.error(e);
+                if (e.code === 'permission-denied') {
+                    alert("You're not signed in with staff access. Sign in on the main Dashboard first.");
+                } else {
+                    alert("Upload failed. Check console for details.");
+                }
+            } finally {
+                btn.innerText = originalText; 
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            }
+        });
+    </script>
+</body>
+</html>

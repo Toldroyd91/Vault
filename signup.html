@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designer Registration | COHI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0d1117; color: #f0f6fc; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        .glass-panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+        .luxury-input {
+            background: #090d13;
+            border: 1px solid #30363d;
+            color: white;
+            border-radius: 8px;
+        }
+        .luxury-input:focus { outline: none; border-color: #E50914; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="glass-panel p-8 w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-2 text-center">Designer Registration</h2>
+        <p class="text-gray-400 text-sm text-center mb-6">Create your secure access profile.</p>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="text-xs text-gray-400 uppercase font-bold tracking-wider">Full Name</label>
+                <input type="text" id="regName" placeholder="e.g. Thomas Oldroyd" class="luxury-input mt-1 p-3 w-full">
+            </div>
+            
+            <div>
+                <label class="text-xs text-gray-400 uppercase font-bold tracking-wider">Email Address</label>
+                <input type="email" id="regEmail" placeholder="name@domain.com" class="luxury-input mt-1 p-3 w-full">
+            </div>
+
+            <div>
+                <label class="text-xs text-gray-400 uppercase font-bold tracking-wider">Password (Min 6 Characters)</label>
+                <input type="password" id="regPassword" placeholder="••••••••" class="luxury-input mt-1 p-3 w-full">
+            </div>
+
+            <div>
+                <label class="text-xs text-gray-400 uppercase font-bold tracking-wider">Primary Brand</label>
+                <select id="regBrand" class="luxury-input mt-1 p-3 w-full">
+                    <option value="CO Home Improvements">CO Home Improvements</option>
+                    <option value="Yorkshire Windows">Yorkshire Windows</option>
+                </select>
+            </div>
+
+            <button id="btnRegister" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors mt-4">
+                Create Profile
+            </button>
+            <div id="statusMsg" class="text-center text-sm mt-3 hidden"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Uses the same real project as the rest of the app (was
+        // previously pointed at a completely different, unaudited Firebase
+        // project called "cohi-live" — almost certainly leftover from an
+        // earlier prototype, copy-pasted from a tutorial template and
+        // never updated).
+        import { auth, db, doc, setDoc } from './js/core-firebase.js';
+        import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        document.getElementById('btnRegister').addEventListener('click', async () => {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const brand = document.getElementById('regBrand').value;
+            const status = document.getElementById('statusMsg');
+
+            if(!name || !email || !password) {
+                status.textContent = "Please fill in all fields.";
+                status.className = "text-center text-sm mt-3 text-red-500 block";
+                return;
+            }
+
+            try {
+                status.textContent = "Creating profile...";
+                status.className = "text-center text-sm mt-3 text-gray-400 block";
+                
+                // 1. Create the Auth Account (this alone grants NO
+                // dashboard access — access is only ever granted via the
+                // grantStaffRole Cloud Function by an existing admin, from
+                // the Staff Access screen in the dashboard). Previously
+                // this wrote role: "designer" straight to Firestore as
+                // part of account creation, which — depending on how that
+                // field was ever checked — could have meant anyone landing
+                // on this public page could grant themselves designer
+                // trust with no approval step at all.
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Attach their name to the Auth profile
+                await updateProfile(user, { displayName: name });
+
+                // 3. Record their requested brand for the admin's
+                // reference when granting access — this is informational
+                // only, it grants nothing on its own.
+                await setDoc(doc(db, "accessRequests", user.uid), {
+                    name: name,
+                    email: email,
+                    requestedBrand: brand,
+                    createdAt: new Date().toISOString(),
+                });
+
+                status.textContent = "Account created. An admin now needs to grant you access from Staff Access before you can log into the dashboard — let them know your email.";
+                status.className = "text-center text-sm mt-3 text-green-500 block";
+                
+                // Clear form
+                document.getElementById('regName').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                
+            } catch (error) {
+                console.error(error);
+                status.textContent = error.message;
+                status.className = "text-center text-sm mt-3 text-red-500 block";
+            }
+        });
+    </script>
+</body>
+</html>

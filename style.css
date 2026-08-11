@@ -1,0 +1,127 @@
+:root {
+    --bg-deep: #020617;
+    --glass-panel: rgba(15, 23, 42, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --accent-primary: #0dcaf0;
+    --text-bright: #f8fafc;
+    --text-muted: #94a3b8;
+}
+
+body {
+    background-color: var(--bg-deep);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(13, 202, 240, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(225, 29, 72, 0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-bright);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    margin: 0; 
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+/* The £1m Glass Effect */
+.glass-panel {
+    background: var(--glass-panel);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-panel:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Luxury Typography & Inputs */
+.luxury-input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    color: var(--text-bright);
+    border-radius: 8px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.luxury-input:focus { 
+    outline: none; 
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(13, 202, 240, 0.2);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.luxury-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Animated Access Button */
+#btnAccess {
+    background: var(--accent-primary);
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(13, 202, 240, 0.3);
+    transition: all 0.3s ease;
+}
+
+#btnAccess:hover {
+    background: #fff;
+    box-shadow: 0 0 30px rgba(13, 202, 240, 0.6);
+    transform: translateY(-2px);
+}
+
+#btnAccess:disabled {
+    background: var(--text-muted);
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
+}
+
+/* Custom Scrollbar for Chat */
+#chat-window::-webkit-scrollbar { 
+    width: 6px; 
+}
+#chat-window::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+#chat-window::-webkit-scrollbar-thumb { 
+    background: var(--glass-border); 
+    border-radius: 10px; 
+}
+#chat-window::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Live Quote Box Glow */
+#quoteContainer > div {
+    background: linear-gradient(145deg, rgba(229, 9, 20, 0.1), rgba(0, 0, 0, 0.4)) !important;
+    border: 1px solid rgba(229, 9, 20, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(229, 9, 20, 0.15) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+#quoteContainer > div::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 2px; height: 100%;
+    background: #E50914;
+}
+
+/* Smooth Fade In Animations */
+.hidden {
+    display: none !important;
+}
+
+#vaultContent {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}

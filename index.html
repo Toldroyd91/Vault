@@ -1,0 +1,2374 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COHI Pro | Enterprise Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    
+    <style>
+        /* =========================================================
+           DYNAMIC BRANDING & THE "LOCK SCREEN" AESTHETIC
+           ========================================================= */
+        :root {
+            --brand-primary: #005A9C; 
+            --brand-bg-glow: rgba(0, 90, 156, 0.3);
+            --brand-border: rgba(0, 90, 156, 0.5);
+            --success: #238636;
+            
+            /* Slate Blue Overlay Colors */
+            --glass-bg: rgba(15, 23, 42, 0.65);
+            --glass-bg-elevated: rgba(30, 41, 59, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        html { 
+            height: 100%; 
+            height: -webkit-fill-available; 
+        }
+
+        /* GLOBAL BASE STYLES */
+        body { 
+            height: 100%; 
+            min-height: -webkit-fill-available;
+            background-color: #020617; 
+            /* The background image is injected dynamically via JS below */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-main); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased; 
+            overflow: hidden;
+            
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* =========================================================
+           FROSTED GLASS PANELS (UI COMPONENTS)
+           ========================================================= */
+        .md-surface { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 16px; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .doc-card { 
+            display: flex; 
+            flex-direction: column; 
+            aspect-ratio: 4/3; 
+            cursor: pointer; 
+            overflow: hidden; 
+            position: relative; 
+            border-radius: 14px; 
+        }
+
+        .doc-card:hover { 
+            background: var(--glass-bg-elevated); 
+            transform: translateY(-4px); 
+            box-shadow: 0 16px 32px rgba(0,0,0,0.6); 
+            border-color: var(--brand-primary); 
+        }
+
+        .doc-preview-area { 
+            flex: 1; 
+            background: rgba(0,0,0,0.3); 
+            border-bottom: 1px solid var(--glass-border); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: var(--text-muted); 
+            position: relative; 
+            overflow: hidden; 
+        }
+        
+        /* =========================================================
+           INPUTS & BUTTONS
+           ========================================================= */
+        .luxury-input { 
+            background: rgba(0, 0, 0, 0.2); 
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border); 
+            color: var(--text-main); 
+            border-radius: 10px; 
+            width: 100%; 
+            padding: 14px 16px; 
+            font-size: 14px; 
+            transition: all 0.2s ease; 
+            outline: none; 
+        }
+
+        .luxury-input:focus { 
+            border-color: var(--brand-primary); 
+            background: rgba(0, 0, 0, 0.4); 
+            box-shadow: 0 0 0 2px var(--brand-bg-glow); 
+        }
+
+        select.luxury-input { 
+            appearance: none; 
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); 
+            background-repeat: no-repeat; 
+            background-position: right 16px top 50%; 
+            background-size: 10px auto; 
+            padding-right: 36px; 
+        }
+
+        select.luxury-input option {
+            background: #0f172a; 
+            color: white;
+        }
+
+        .btn-primary { 
+            background: var(--brand-primary); 
+            color: #fff; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            border-radius: 10px; 
+            padding: 16px 24px; 
+            transition: all 0.2s ease; 
+            border: none; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) { 
+            filter: brightness(1.15); 
+            box-shadow: 0 6px 20px var(--brand-bg-glow); 
+            transform: translateY(-1px); 
+        }
+
+        .btn-primary:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+        }
+        
+        .btn-secondary { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(8px);
+            color: var(--text-main); 
+            border: 1px solid var(--glass-border); 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            border-radius: 10px; 
+            padding: 14px 20px; 
+            transition: all 0.2s ease; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+        }
+
+        .btn-secondary:hover:not(:disabled) { 
+            border-color: rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.1); 
+        }
+
+        .fab { 
+            position: fixed; 
+            bottom: 32px; 
+            right: 32px; 
+            width: 64px; 
+            height: 64px; 
+            border-radius: 20px; 
+            background: var(--brand-primary); 
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 40; 
+        }
+
+        .fab:hover { 
+            transform: scale(1.06) translateY(-2px); 
+            border-radius: 16px; 
+            filter: brightness(1.15); 
+        }
+
+        /* =========================================================
+           SIDEBAR NAVIGATION
+           ========================================================= */
+        #appSidebar { 
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-right: 1px solid var(--glass-border);
+            transform: translateX(-100%); 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        #appSidebar.open { 
+            transform: translateX(0); 
+        }
+        
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            padding: 14px 20px; 
+            border-radius: 0 24px 24px 0; 
+            color: var(--text-main); 
+            font-weight: 600; 
+            font-size: 14px; 
+            transition: all 0.2s ease; 
+            margin-right: 16px; 
+            cursor: pointer; 
+        }
+
+        .nav-link:hover { 
+            background: rgba(255,255,255,0.05); 
+        }
+
+        .nav-link.active { 
+            background: var(--brand-bg-glow); 
+            color: var(--text-main); 
+            border-left: 4px solid var(--brand-primary);
+        }
+        
+        /* =========================================================
+           MODULE VIEWS & ANIMATIONS
+           ========================================================= */
+        .module-view { 
+            display: none; 
+            animation: fadeIn 0.3s ease-out; 
+        }
+
+        .module-view.active { 
+            display: block; 
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(8px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        #authGate { 
+            transition: opacity 0.5s ease; 
+            background: transparent; 
+        }
+
+        .fade-out { 
+            opacity: 0; 
+            pointer-events: none; 
+        }
+        
+        /* =========================================================
+           CHECKBOXES & CUSTOM ELEMENTS
+           ========================================================= */
+        .luxury-checkbox { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            background: rgba(0,0,0,0.2); 
+            padding: 14px 16px; 
+            border-radius: 10px; 
+            border: 1px solid var(--glass-border); 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+
+        .luxury-checkbox:hover { 
+            border-color: var(--brand-primary); 
+            background: rgba(0,0,0,0.4); 
+        }
+
+        .luxury-checkbox input { 
+            accent-color: var(--brand-primary); 
+            width: 18px; 
+            height: 18px; 
+            cursor: pointer; 
+        }
+
+        .luxury-checkbox span { 
+            font-size: 13px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            color: var(--text-main); 
+        }
+
+        /* =========================================================
+           PHOTOGRAPHY & CANVAS
+           ========================================================= */
+        .photo-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 12px; 
+        }
+
+        @media (min-width: 768px) { 
+            .photo-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } 
+        }
+        
+        .photo-btn { 
+            background: rgba(0,0,0,0.2); 
+            border: 1px solid var(--glass-border); 
+            padding: 16px; 
+            border-radius: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-size: 12px; 
+            color: var(--text-muted); 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+
+        .photo-btn:hover { 
+            border-color: var(--brand-primary); 
+            color: #fff; 
+            background: rgba(0,0,0,0.4); 
+        }
+
+        .photo-btn .badge { 
+            background: rgba(255,255,255,0.1); 
+            color: var(--text-muted); 
+            padding: 2px 8px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            font-weight: 900; 
+        }
+
+        .photo-btn.has-photos { 
+            border-color: var(--success); 
+            color: #fff; 
+            background: rgba(35, 134, 54, 0.2); 
+        }
+
+        .photo-btn.has-photos .badge { 
+            background: var(--success); 
+            color: #fff; 
+        }
+
+        .canvas-container { 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 14px; 
+            width: 100%; 
+            height: 400px; 
+            border: 2px dashed var(--glass-border); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden; 
+            position: relative; 
+            touch-action: none; 
+        }
+
+        @media (min-width: 768px) { 
+            .canvas-container { height: 500px; } 
+        }
+
+        canvas { 
+            max-width: 100%; 
+            max-height: 100%; 
+        }
+        
+        /* =========================================================
+           UTILITIES
+           ========================================================= */
+        #syncProgressWrapper { 
+            display: none; 
+            margin-top: 20px; 
+            width: 100%; 
+        }
+
+        .progress-bg { 
+            height: 8px; 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 4px; 
+            overflow: hidden; 
+            border: 1px solid var(--glass-border); 
+        }
+
+        .progress-fill { 
+            height: 100%; 
+            background: var(--brand-primary); 
+            width: 0%; 
+            transition: width 0.3s ease; 
+        }
+
+        .avatar-upload-circle { 
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            background: rgba(0,0,0,0.2); 
+            border: 2px dashed var(--glass-border); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            overflow: hidden; 
+            position: relative; 
+            transition: all 0.3s ease; 
+        }
+
+        .avatar-upload-circle:hover { 
+            border-color: var(--brand-primary); 
+            background: rgba(0,0,0,0.4); 
+        }
+
+        .avatar-img-preview { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            opacity: 0; 
+            transition: opacity 0.3s; 
+        }
+
+        .avatar-img-preview.active { 
+            opacity: 1; 
+            z-index: 10; 
+        }
+        
+        .portfolio-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 12px; 
+            margin-top: 16px; 
+        }
+
+        .portfolio-slot { 
+            aspect-ratio: 4/3; 
+            background: rgba(0,0,0,0.2); 
+            border: 1px dashed var(--glass-border); 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            overflow: hidden; 
+            position: relative; 
+        }
+
+        .portfolio-slot:hover { 
+            border-color: var(--brand-primary); 
+            background: rgba(0,0,0,0.4); 
+        }
+
+        .portfolio-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            position: absolute; 
+            z-index: 5; 
+        }
+
+    </style>
+</head>
+<body class="flex w-full h-full relative">
+
+    <!-- =========================================================
+         DYNAMIC BACKGROUND SCRIPT (Runs immediately)
+         ========================================================= -->
+    <script>
+        (function() {
+            // These map exactly to your folder structure
+            const bgImages = [
+                '1.JPG', 
+                '2.JPG', 
+                '3.JPG', 
+                '4.jpeg',
+                '5.jpeg', 
+                '6.jpg', 
+                '7.jpg', 
+                '8.jpg'
+            ];
+            
+            // Pick a random image from the array
+            const randomImage = bgImages[Math.floor(Math.random() * bgImages.length)];
+            
+            // Construct the path
+            const bgUrl = `assets/Backgrounds/${randomImage}`;
+            
+            // Apply the slate-blue gradient overlay + the random image
+            document.body.style.backgroundImage = `
+                linear-gradient(to bottom, rgba(15, 23, 42, 0.75), rgba(2, 6, 23, 0.95)), 
+                url('${bgUrl}')
+            `;
+        })();
+    </script>
+
+    <!-- =========================================================
+         THE GUARANTEED UNLOCK SCRIPTS (Runs Independent of Firebase)
+         ========================================================= -->
+    <script>
+        // NOTE: real authentication lives in the module script further down
+        // this file (it needs `auth`/`onAuthStateChanged` from
+        // core-firebase.js, which only works inside a module). This helper
+        // just applies brand colours/logo once a real login has succeeded —
+        // it grants no access on its own.
+        //
+        // This used to keep its own separate hardcoded copy of every
+        // brand's hex + rgb colour, duplicating BRAND_CONFIG in
+        // core-firebase.js with slightly different keys — two sources of
+        // truth for the same 6 colours is exactly how they drift apart
+        // over time. Now derives everything from the one canonical
+        // BRAND_CONFIG, computing rgb from hex instead of hand-maintaining
+        // both.
+        function hexToRgb(hex) {
+            const clean = hex.replace('#', '');
+            const bigint = parseInt(clean, 16);
+            return `${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}`;
+        }
+
+        window.applyBrandThemeByKey = function(brandKey, brandConfigMap) {
+            const config = brandConfigMap[brandKey] || brandConfigMap["YorkshireWindows"];
+            document.documentElement.style.setProperty('--brand-primary', config.theme);
+            document.documentElement.style.setProperty('--brand-bg-glow', `rgba(${hexToRgb(config.theme)}, 0.3)`);
+            const sbLogo = document.getElementById('sidebarBrandLogo');
+            if (sbLogo) sbLogo.src = `${config.assetPath}logo.png`;
+            const loginLogo = document.getElementById('loginBrandLogo');
+            if (loginLogo) loginLogo.src = `${config.assetPath}logo.png`;
+        };
+
+        // Best-effort guess from email, used only as a fallback when a
+        // designer hasn't yet picked an explicit "Working As" brand.
+        window.guessBrandFromEmail = function(email, brandConfigMap) {
+            const normalized = email.toLowerCase().replace(/[^a-z]/g, '');
+            for (const key of Object.keys(brandConfigMap)) {
+                if (key === "COHI") continue;
+                if (normalized.includes(key.toLowerCase())) return key;
+            }
+            return "YorkshireWindows";
+        };
+    </script>
+
+    <!-- SECURE AUTH GATE -->
+    <div id="authGate" class="fixed inset-0 z-[9999] flex items-center justify-center p-6 backdrop-blur-sm">
+        <div class="md-surface p-10 w-full max-w-md relative overflow-hidden shadow-2xl transition-all duration-300 flex flex-col items-center">
+            
+            <img id="loginBrandLogo" src="assets/co-logo.png" alt="Brand Logo" class="h-24 mb-6 object-contain transition-all duration-500 drop-shadow-lg">
+            
+            <div class="w-full space-y-5 mt-4">
+                <input type="email" id="authEmail" placeholder="Designer Email" class="luxury-input text-center font-bold tracking-wide bg-black/40 border-white/20" value="" autocomplete="username">
+                
+                <input type="password" id="authPassword" placeholder="••••••••" class="luxury-input text-center tracking-[0.5em] bg-black/40 border-white/20" value="" autocomplete="current-password">
+                
+                <button id="btnLogin" class="btn-primary w-full py-4 text-sm mt-2 shadow-lg shadow-black/50">
+                    Unlock Workstation
+                </button>
+
+                <p id="authError" class="text-[11px] text-red-400 text-center hidden"></p>
+            </div>
+            
+            <p class="text-[9px] text-gray-400 mt-8 uppercase tracking-widest text-center">
+                Enterprise Secured
+            </p>
+        </div>
+    </div>
+
+
+    <!-- MOBILE SIDEBAR OVERLAY -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity opacity-0" onclick="toggleMenu()"></div>
+
+    <!-- SIDEBAR -->
+    <nav id="appSidebar" class="w-72 h-full fixed left-0 top-0 z-50 flex flex-col shadow-2xl">
+        <div class="p-6 pt-12 pb-6 border-b border-white/10 flex flex-col gap-6">
+            <img id="sidebarBrandLogo" src="assets/co-logo.png" alt="Brand Logo" class="h-10 object-contain self-start transition-all duration-500 drop-shadow">
+
+            <!-- Brand cross-switcher — a designer's theme used to be
+                 permanently guessed from their email domain with no way
+                 to change it, even though staff work across all 6 brands.
+                 This drives applyBrandTheme() directly and persists the
+                 choice to their profile for next login. -->
+            <div>
+                <label class="block text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-1">Working As</label>
+                <select id="brandSwitcher" class="w-full bg-black/30 border border-white/10 text-white text-xs font-bold rounded-lg p-2 outline-none focus:border-[color:var(--brand-primary)] transition">
+                    <!-- Populated dynamically from BRAND_CONFIG -->
+                </select>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-600 flex items-center justify-center text-sm font-bold shadow-lg overflow-hidden relative">
+                    <span id="sidebarAvatarInitial">T</span>
+                    <img id="sidebarAvatarImg" src="" class="absolute inset-0 w-full h-full object-cover opacity-0">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white leading-tight drop-shadow" id="userName">Loading...</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest truncate max-w-[150px]" id="userRole">Designer</p>
+                </div>
+                <button id="btnLogout" title="Sign out" class="text-slate-400 hover:text-white transition p-2 rounded-lg hover:bg-white/5">
+                    <span class="material-icons-round text-lg">logout</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-4 space-y-1">
+            <div class="nav-link active" onclick="switchModule('module-projects', this)">
+                <span class="material-icons-round text-slate-300">folder_copy</span> Project Library
+            </div>
+            <div class="nav-link" onclick="switchModule('module-survey', this)">
+                <span class="material-icons-round text-slate-300">architecture</span> Survey Engine
+            </div>
+            <div class="nav-link" onclick="switchModule('module-profile', this)">
+                <span class="material-icons-round text-slate-300">manage_accounts</span> Designer Profile
+            </div>
+            <div class="nav-link" onclick="switchModule('module-gatekeeper', this)">
+                <span class="material-icons-round text-slate-300">account_tree</span> Project Gatekeeper
+            </div>
+            <div class="nav-link" onclick="window.open('property-intel.html', '_blank')">
+                <span class="material-icons-round text-slate-300">public</span> Site Intel
+            </div>
+            <div class="nav-link" onclick="switchModule('module-dossier', this)">
+                <span class="material-icons-round text-slate-300">auto_awesome_mosaic</span> Dossier Compiler
+            </div>
+            <div id="navStaffAccess" class="nav-link hidden" onclick="switchModule('module-staff', this)">
+                <span class="material-icons-round text-slate-300">admin_panel_settings</span> Staff Access
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN APP SHELL -->
+    <div id="appShell" class="flex flex-col w-full h-full opacity-0 transition-opacity duration-500 overflow-hidden">
+        
+        <header class="h-16 border-b border-white/10 bg-slate-900/40 backdrop-blur-md flex items-center justify-between px-6 z-30 shrink-0 shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleMenu()" class="text-slate-300 hover:text-white p-2 rounded-full hover:bg-white/10 transition flex items-center justify-center">
+                    <span class="material-icons-round text-2xl drop-shadow">menu</span>
+                </button>
+                <h1 id="appBarTitle" class="text-lg font-bold tracking-wide drop-shadow text-white">Project Library</h1>
+            </div>
+        </header>
+
+        <main class="flex-1 min-h-0 overflow-y-auto relative p-4 md:p-10">
+            
+            <!-- MODULE 1: DASHBOARD -->
+            <div id="module-projects" class="module-view active max-w-7xl mx-auto pb-24">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-widest drop-shadow">Recent Surveys</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="projectsGrid">
+                    <!-- Projects populated here -->
+                </div>
+                
+                <button class="fab" onclick="switchModule('module-survey', document.querySelectorAll('.nav-link')[1])" title="Start New Survey">
+                    <span class="material-icons-round">add</span>
+                </button>
+            </div>
+
+            <!-- MODULE 2: RAPID FULL SURVEY ENGINE -->
+            <div id="module-survey" class="module-view max-w-5xl mx-auto pb-24">
+                <div class="flex items-center gap-4 mb-8">
+                    <button onclick="switchModule('module-projects', document.querySelectorAll('.nav-link')[0])" class="text-slate-300 hover:text-white flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition">
+                        <span class="material-icons-round">arrow_back</span>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl font-black uppercase tracking-tight text-white drop-shadow">Rapid Site Survey</h2>
+                        <p class="text-xs text-slate-400 uppercase tracking-widest mt-1 drop-shadow">Full Architectural Capture</p>
+                    </div>
+                </div>
+
+                <!-- 01. Profile -->
+                <div class="md-surface p-6 md:p-8 mb-6 border-l-4 border-l-[color:var(--brand-primary)]">
+                    <h3 class="text-xs uppercase font-bold tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2" style="color: #60a5fa;">
+                        <span class="material-icons-round text-lg">person</span> 01. Client Profile
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Lead Name *</label>
+                            <input type="text" id="clientName" placeholder="e.g. Mr. Dow" class="luxury-input">
+                        </div>
+                        
+                        <div class="bg-black/30 p-3 rounded-lg border border-emerald-900/50">
+                            <label class="block text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-2 flex items-center gap-1">
+                                <span class="material-icons-round text-[12px]">lock</span> Client Mobile *
+                            </label>
+                            <input type="tel" id="clientPhone" placeholder="e.g. 07700 900077" class="luxury-input bg-transparent border-none p-0 mb-1 focus:shadow-none focus:bg-transparent" style="font-size: 14px;">
+                            <p class="text-[9px] text-slate-400 font-medium leading-tight border-t border-emerald-900/30 pt-1">Last 4 digits auto-generate Vault PIN.</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Site Postcode *</label>
+                            <input type="text" id="postCode" placeholder="e.g. S70 0PN" class="luxury-input uppercase">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Customer Number</label>
+                            <input type="text" id="clientNum" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">House No. / Name *</label>
+                            <input type="text" id="houseNum" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Consultation Date</label>
+                            <input type="date" id="apptDate" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Revisit Date</label>
+                            <input type="date" id="revisitDate" class="luxury-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 02. Scope & Structure -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <h3 class="text-xs uppercase font-bold tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2" style="color: #60a5fa;">
+                        <span class="material-icons-round text-lg">architecture</span> 02. Project Scope & Structure
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Build Type</label>
+                            <select id="buildType" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Single Storey Extension">Single Storey Extension</option>
+                                <option value="Conservatory">Conservatory</option>
+                                <option value="Orangery">Orangery</option>
+                                <option value="Hybrid Extension">Hybrid Extension</option>
+                                <option value="Porch">Porch</option>
+                                <option value="Garage Conversion">Garage Conversion</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Proposed Size (mm)</label>
+                            <input type="text" id="proposedSize" placeholder="e.g. 3000x4000" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Existing House Material</label>
+                            <select id="houseMaterial" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Standard Brick">Standard Brick</option>
+                                <option value="Stone">Stone</option>
+                                <option value="Rendered">Rendered</option>
+                                <option value="Pebbledash">Pebbledash</option>
+                                <option value="Timber Clad">Timber Clad</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Base Type</label>
+                            <select id="baseType" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Standard Concrete">Standard Concrete</option>
+                                <option value="Block & Beam">Block & Beam</option>
+                                <option value="Piled / Steel">Piled / Steel</option>
+                                <option value="Existing Base">Existing Base (Retained)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">DPC Depth (mm)</label>
+                            <input type="number" id="dpcDepth" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Fascia Height (mm)</label>
+                            <input type="number" id="fasciaHeight" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Sub-Floor Venting (Air Bricks)</label>
+                            <select id="airBricks" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Standard Venting Required">Standard Venting Required</option>
+                                <option value="Telescopic Sub-Floor Ducts">Telescopic Sub-Floor Ducts</option>
+                                <option value="None Required">None Required</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 03. Logistics -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <h3 class="text-xs uppercase font-bold tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2" style="color: #60a5fa;">
+                        <span class="material-icons-round text-lg">warning</span> 03. Logistics & Restrictions
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Access Difficulties</label>
+                            <select id="accessDifficult" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Unrestricted Access">Unrestricted Access</option>
+                                <option value="Narrow Side Gate">Narrow Side Gate</option>
+                                <option value="Through Garage Only">Through Garage Only</option>
+                                <option value="Through House Only">Through House Only</option>
+                                <option value="Severe Incline / Steps">Severe Incline / Steps</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Access Width (mm)</label>
+                            <input type="number" id="accessWidth" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Drainage Relocations</label>
+                            <select id="drainage" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Clear / No Action">Clear / No Action</option>
+                                <option value="Manhole Cover Move">Manhole Cover Move</option>
+                                <option value="Rainwater Pipe Move">Rainwater Pipe Move</option>
+                                <option value="Soil Pipe Move">Soil Pipe Move</option>
+                                <option value="Gulley Move">Gulley Move</option>
+                            </select>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Wall Obstacles (Flues, Vents)</label>
+                            <input type="text" id="wallObstacles" class="luxury-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 04. Design Spec -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <h3 class="text-xs uppercase font-bold tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2" style="color: #60a5fa;">
+                        <span class="material-icons-round text-lg">palette</span> 04. Design Specification
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Roof System</label>
+                            <select id="roofType" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Edwardian roof">Edwardian roof</option>
+                                <option value="Ultra380 Solid Roof">Ultra380 Solid Roof</option>
+                                <option value="Hybrid/Livin Roof">Hybrid/Livin Roof</option>
+                                <option value="Glass Conservatory Roof">Glass Conservatory Roof</option>
+                                <option value="Polycarbonate Roof">Polycarbonate Roof</option>
+                                <option value="Standard Flat Roof">Standard Flat Roof</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Roof Pitch (Degrees)</label>
+                            <input type="number" id="roofPitch" class="luxury-input">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Frame Colour (External)</label>
+                            <select id="frameColour" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="White">White</option>
+                                <option value="Anthracite Grey (Smooth)">Anthracite Grey (Smooth)</option>
+                                <option value="Grey Foil">Grey Foil</option>
+                                <option value="Chartwell Green">Chartwell Green</option>
+                                <option value="Rosewood">Rosewood</option>
+                                <option value="Light Oak">Light Oak</option>
+                                <option value="Black Foil">Black Foil</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Frame Colour (Internal)</label>
+                            <select id="internalFrameColour" class="luxury-input">
+                                <option value="White">White</option>
+                                <option value="Match External">Match External</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 05. Compliance & Pamphlets -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <h3 class="text-xs uppercase font-bold tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2" style="color: #60a5fa;">
+                        <span class="material-icons-round text-lg">gavel</span> 05. Compliance & Regulations
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Building Regs Requirement</label>
+                            <select id="buildingRegs" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Full Building Control Required">Full Building Control Required</option>
+                                <option value="Replacement - Masonry Alterations">Replacement - Masonry Alterations</option>
+                                <option value="Replacement - No Alterations">Replacement - No Alterations</option>
+                                <option value="Exempt / Not Required">Exempt / Not Required</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Planning Authority Status</label>
+                            <select id="planningPerms" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Full Planning Permission Needed">Full Planning Permission Needed</option>
+                                <option value="NCS Prior Approval Needed">NCS Prior Approval Needed</option>
+                                <option value="Permitted Development (No Action)">Permitted Development (No Action)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">SAP Energy Calcs</label>
+                            <select id="sapCalcs" class="luxury-input">
+                                <option value="">Select...</option>
+                                <option value="Yes">Yes - Required</option>
+                                <option value="No">No - Exempt</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-3 mt-6">Handover Pamphlets</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="luxury-checkbox">
+                            <input type="checkbox" id="cb-brochure"> <span>Product Brochure Handed Over</span>
+                        </label>
+                        <label class="luxury-checkbox">
+                            <input type="checkbox" id="cb-warranty"> <span>Warranty Documentation Provided</span>
+                        </label>
+                        <label class="luxury-checkbox">
+                            <input type="checkbox" id="cb-planning"> <span>Planning Guide / Regulatory Handout</span>
+                        </label>
+                        <label class="luxury-checkbox">
+                            <input type="checkbox" id="cb-sap"> <span>SAP Calculations Factsheet</span>
+                        </label>
+                        <label class="luxury-checkbox">
+                            <input type="checkbox" id="cb-roof"> <span>Roof System Specification Guide</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 06. Elevation Sniper Engine -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/10 pb-3 mb-6 gap-4">
+                        <h3 class="text-xs uppercase font-bold tracking-widest flex items-center gap-2 m-0" style="color: #60a5fa;">
+                            <span class="material-icons-round text-lg">gps_fixed</span> 06. Elevation Sniper Engine
+                        </h3>
+                        <button id="btn-load-sniper-img" class="btn-secondary py-2 px-4 text-[10px] w-full md:w-auto">
+                            📷 Capture Photo
+                        </button>
+                    </div>
+                    
+                    <div class="canvas-container mb-4" style="cursor: grab;">
+                        <canvas id="sniperCanvas" width="900" height="600"></canvas>
+                        
+                        <div class="absolute bottom-5 right-5 bg-black/80 backdrop-blur px-4 py-3 rounded-lg border border-white/10 flex items-center gap-3">
+                            <span class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Zoom</span>
+                            <input type="range" id="sniperZoom" min="0.5" max="5" step="0.1" value="1" class="w-24 accent-[color:var(--brand-primary)]">
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="btn-sniper-mark" class="btn-secondary flex-1 py-4 text-xs">
+                            <span class="material-icons-round text-sm">gps_fixed</span> Drop Target Pin
+                        </button>
+                        <button id="btn-sniper-clear" class="btn-secondary sm:px-6 py-4 text-xs">
+                            <span class="material-icons-round text-sm">refresh</span> Clear All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 07. Site Photography Grid -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <h3 class="text-xs uppercase font-bold tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2" style="color: #60a5fa;">
+                        <span class="material-icons-round text-lg">camera_alt</span> 07. Site Photography Grid
+                    </h3>
+                    
+                    <div class="photo-grid">
+                        <div class="photo-btn" id="btn-front" onclick="document.getElementById('upload-front').click()">
+                            <span>Front Elev</span><span class="badge" id="badge-front">0</span>
+                        </div>
+                        <input type="file" id="upload-front" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'front')">
+                        
+                        <div class="photo-btn" id="btn-side" onclick="document.getElementById('upload-side').click()">
+                            <span>Side Elev</span><span class="badge" id="badge-side">0</span>
+                        </div>
+                        <input type="file" id="upload-side" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'side')">
+                        
+                        <div class="photo-btn" id="btn-back" onclick="document.getElementById('upload-back').click()">
+                            <span>Back Elev</span><span class="badge" id="badge-back">0</span>
+                        </div>
+                        <input type="file" id="upload-back" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'back')">
+                        
+                        <div class="photo-btn" id="btn-access" onclick="document.getElementById('upload-access').click()">
+                            <span>Access Route</span><span class="badge" id="badge-access">0</span>
+                        </div>
+                        <input type="file" id="upload-access" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'access')">
+                        
+                        <div class="photo-btn" id="btn-drainage" onclick="document.getElementById('upload-drainage').click()">
+                            <span>Drainage</span><span class="badge" id="badge-drainage">0</span>
+                        </div>
+                        <input type="file" id="upload-drainage" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'drainage')">
+                        
+                        <div class="photo-btn" id="btn-trees" onclick="document.getElementById('upload-trees').click()">
+                            <span>Trees/Roots</span><span class="badge" id="badge-trees">0</span>
+                        </div>
+                        <input type="file" id="upload-trees" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'trees')">
+                        
+                        <div class="photo-btn" id="btn-brick" onclick="document.getElementById('upload-brick').click()">
+                            <span>Brick Match</span><span class="badge" id="badge-brick">0</span>
+                        </div>
+                        <input type="file" id="upload-brick" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'brick')">
+                        
+                        <div class="photo-btn" id="btn-misc" onclick="document.getElementById('upload-misc').click()">
+                            <span>Misc Doc</span><span class="badge" id="badge-misc">0</span>
+                        </div>
+                        <input type="file" id="upload-misc" accept="image/*" class="hidden" onchange="queuePhotoUpload(this, 'misc')">
+                    </div>
+                </div>
+
+                <!-- 08. Notes & Save -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <h3 class="text-xs uppercase font-bold tracking-widest mb-6 border-b border-white/10 pb-3 flex items-center gap-2" style="color: #60a5fa;">
+                        <span class="material-icons-round text-lg">edit_note</span> 08. Designer Notes & Sync
+                    </h3>
+                    
+                    <textarea id="designerNotes" rows="6" class="luxury-input mb-4" placeholder="Enter specific field notes for installers, structural anomalies, or specific design requests from the client..."></textarea>
+                    
+                    <button id="btn-ai-polish" class="btn-secondary w-full mb-6">
+                        <span class="material-icons-round">auto_fix_high</span> AI Polish Notes
+                    </button>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 pt-6 border-t border-white/10">
+                        <button id="btn-sync" class="btn-primary flex-[2] py-5 shadow-[0_4px_15px_var(--brand-bg-glow)]">
+                            <span class="material-icons-round">cloud_upload</span> Upload & Sync Data
+                        </button>
+                        <button id="btn-generate-pdf" class="btn-secondary flex-1 py-5">
+                            <span class="material-icons-round">picture_as_pdf</span> Generate PDF
+                        </button>
+                        <button id="btn-vault" class="btn-secondary flex-1 py-5 border-[color:var(--brand-primary)] text-[color:var(--brand-primary)] hover:bg-[color:var(--brand-bg-glow)]">
+                            <span class="material-icons-round">lock_open</span> View Vault
+                        </button>
+                    </div>
+
+                    <div id="syncProgressWrapper" class="mt-6">
+                        <label id="progressText" class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-2 block">Initializing Transfer...</label>
+                        <div class="progress-bg"><div id="progressFill" class="progress-fill"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE: DESIGNER PROFILE ENGINE -->
+            <div id="module-profile" class="module-view max-w-4xl mx-auto pb-24">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-white drop-shadow">Designer Profile</h2>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest mt-1 drop-shadow">Configure Your Dossier Branding</p>
+                </div>
+
+                <div class="md-surface p-6 md:p-8 mb-6 border-t-4 border-t-[color:var(--brand-primary)]">
+                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                        
+                        <!-- Headshot Uploader -->
+                        <div class="flex flex-col items-center gap-3 shrink-0">
+                            <label class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Headshot</label>
+                            <div class="avatar-upload-circle" onclick="document.getElementById('upload-avatar').click()">
+                                <span class="material-icons-round text-4xl text-slate-400">add_a_photo</span>
+                                <img id="preview-avatar" class="avatar-img-preview" src="">
+                            </div>
+                            <input type="file" id="upload-avatar" accept="image/*" class="hidden">
+                        </div>
+
+                        <!-- Text Inputs -->
+                        <div class="flex-1 w-full space-y-5">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Display Name</label>
+                                    <input type="text" id="profName" class="luxury-input" placeholder="e.g. Thomas Oldroyd">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Job Title</label>
+                                    <input type="text" id="profRole" class="luxury-input" placeholder="New Living Space Designer">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest mb-2">Sales Biography (For PDF)</label>
+                                <textarea id="profBio" rows="4" class="luxury-input" placeholder="Write a brief professional summary focusing on your expertise, local area knowledge, and commitment to design standards..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Grid -->
+                <div class="md-surface p-6 md:p-8 mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-[10px] text-slate-300 font-bold uppercase tracking-widest">Showcase Portfolio</label>
+                        <span class="text-[10px] bg-black/40 px-2 py-1 rounded text-slate-400">Max 4 Images</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4">These images will be injected into your master PDF to show clients examples of your past architectural work.</p>
+                    
+                    <div class="portfolio-grid" id="portfolioContainer">
+                        <div class="portfolio-slot" onclick="document.getElementById('upload-portfolio').click()">
+                            <span class="material-icons-round text-slate-400">add</span>
+                        </div>
+                        <input type="file" id="upload-portfolio" accept="image/*" multiple class="hidden">
+                    </div>
+                </div>
+
+                <button id="btn-save-profile" class="btn-primary w-full py-5 shadow-[0_4px_15px_var(--brand-bg-glow)]">
+                    <span class="material-icons-round">save</span> Sync Profile to Cloud
+                </button>
+            </div>
+
+            <!-- MODULE: PROJECT GATEKEEPER -->
+            <div id="module-gatekeeper" class="module-view max-w-6xl mx-auto pb-24">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-white drop-shadow">Project Gatekeeper</h2>
+                    <p class="text-xs text-amber-400 font-bold uppercase tracking-widest mt-1 drop-shadow">Pricing & Vault Access Control</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left Column: Active Pipeline -->
+                    <div class="lg:col-span-1 md-surface p-6 flex flex-col gap-4 max-h-[600px] overflow-y-auto">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-300 border-b border-white/10 pb-2">Active Pipeline</h3>
+                        <div id="gatekeeperPipeline" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: Launches the real control panel -->
+                    <div class="lg:col-span-2 md-surface bg-black/40 p-8 border-dashed border-2 border-white/20 text-center flex flex-col items-center justify-center min-h-[500px]" id="pdfDropZone">
+                        <span class="material-icons-round text-6xl text-slate-500 mb-4 drop-shadow">lock_open</span>
+                        <h3 class="text-xl font-bold text-slate-300 mb-2">Select a Project</h3>
+                        <p class="text-sm text-slate-400 max-w-md">Choose a project from your pipeline to open the Gatekeeper control panel — set the price and flip customer vault access from there.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- MODULE: DOSSIER COMPILER -->
+            <div id="module-dossier" class="module-view max-w-5xl mx-auto pb-24">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-white drop-shadow">Dossier Compiler</h2>
+                    <p class="text-xs text-[#0dcaf0] font-bold uppercase tracking-widest mt-1 drop-shadow">Enterprise Presentation API</p>
+                </div>
+
+                <div class="md-surface p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-[0_0_20px_var(--brand-bg-glow)]" style="border-color: var(--brand-primary)">
+                    <div>
+                        <span class="bg-[color:var(--brand-primary)]/20 text-[color:var(--brand-primary)] px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest mb-3 inline-block border border-[color:var(--brand-primary)]/50">Ready to Compile</span>
+                        <h3 class="m-0 font-black text-white text-2xl tracking-wide">Selected Project</h3>
+                        <p class="m-0 mt-1 text-xs text-slate-400 font-bold uppercase tracking-widest">Awaiting Sync</p>
+                    </div>
+                    <div class="flex flex-col gap-2 w-full md:w-auto">
+                        <button id="btnScrapeCompile" class="btn-primary px-8">
+                            <span class="material-icons-round">radar</span> Compile & Scrape Intel
+                        </button>
+                    </div>
+                </div>
+
+                <div id="scrapingConsole" class="md-surface p-6 bg-black/60 hidden">
+                    <h4 class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-4 border-b border-white/10 pb-2">Intelligence Extraction Protocol</h4>
+                    <div class="space-y-3 font-mono text-xs">
+                        <p id="log1" class="text-slate-500 opacity-0 transition-opacity duration-300">> Querying UK Govt EPC Database...</p>
+                        <p id="log2" class="text-slate-500 opacity-0 transition-opacity duration-300">> Calculating thermal baseline and age...</p>
+                        <p id="log3" class="text-slate-500 opacity-0 transition-opacity duration-300">> Fetching local authority planning precedents...</p>
+                        <p id="log4" class="text-slate-500 opacity-0 transition-opacity duration-300">> Triangulating Open-Meteo structural snow loads...</p>
+                        <p id="log5" class="text-slate-500 opacity-0 transition-opacity duration-300">> Generating Master PDF Dossier...</p>
+                        <div id="logSuccess" class="opacity-0 transition-opacity duration-500 pt-4">
+                            <button id="btn-open-final-pdf" class="btn-primary w-full bg-[#238636] text-white shadow-[0_0_20px_rgba(35,134,54,0.3)] border-none">
+                                <span class="material-icons-round">picture_as_pdf</span> Open Final Dossier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN ONLY: STAFF ACCESS MANAGEMENT -->
+            <div id="module-staff" class="module-view max-w-3xl mx-auto pb-24">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-white drop-shadow">Staff Access</h2>
+                    <p class="text-xs text-[#0dcaf0] font-bold uppercase tracking-widest mt-1 drop-shadow">Grant or Review Dashboard Permissions</p>
+                </div>
+
+                <div class="md-surface p-6 mb-6">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-4">Pending Requests</h3>
+                    <p class="text-xs text-slate-400 mb-4">From <code>signup.html</code> — creating an account there requests access but grants nothing on its own.</p>
+                    <div id="pendingAccessRequests" class="space-y-2">
+                        <p class="text-xs text-slate-500">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="md-surface p-6 mb-6">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-4">Grant Access</h3>
+                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                        The person must already have a Firebase Authentication account
+                        (create one in the Firebase Console → Authentication → Users,
+                        or ask them to use "Forgot password" on their first visit once
+                        an account exists). This just grants their existing account
+                        dashboard permissions — it does not create the account itself.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="email" id="staffInviteEmail" placeholder="colleague@yorkshirewindows.com" class="luxury-input md:col-span-2">
+                        <select id="staffInviteRole" class="luxury-input">
+                            <option value="designer">Designer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button id="btnGrantStaffRole" class="btn-primary w-full mt-4">
+                        <span class="material-icons-round">person_add</span> Grant Access
+                    </button>
+                    <p id="staffInviteStatus" class="text-xs mt-3 hidden"></p>
+                </div>
+
+                <div class="md-surface p-6">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-2">Note on removing access</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        There's no revoke button here yet — for now, remove someone's
+                        role via the Firebase Console (Authentication → user →
+                        Custom Claims) or disable their account entirely. A revoke
+                        flow is an easy follow-up if this becomes a regular need.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- =========================================================
+         CORE LOGIC & JS INTERACTIVITY (Firebase Module)
+         ========================================================= -->
+    <script type="module">
+        import { db, doc, setDoc, getDoc, collection, serverTimestamp, getDocs, query, orderBy, auth, onAuthStateChanged, signInWithEmailAndPassword, signOut, functions, httpsCallable, deleteDoc, BRAND_CONFIG } from './js/core-firebase.js';
+
+        // TRUE STORAGE PIPELINE IMPORTS
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        // INIT PDF.JS WORKER
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        const storage = getStorage();
+
+        // ==========================================
+        // REAL AUTHENTICATION
+        // ==========================================
+        // Replaces the old "type any email, no password checked" gate.
+        // Access is granted only to accounts holding a 'designer' or
+        // 'admin' custom claim, set via the grantStaffRole Cloud Function
+        // (see functions/index.js). A valid Firebase account with no
+        // claim yet is signed straight back out with an explanation.
+        function showAuthError(message) {
+            const el = document.getElementById('authError');
+            if (!el) return;
+            el.innerText = message;
+            el.classList.remove('hidden');
+        }
+
+        function hideAuthError() {
+            const el = document.getElementById('authError');
+            if (el) el.classList.add('hidden');
+        }
+
+        function showAuthGate() {
+            const gate = document.getElementById('authGate');
+            const shell = document.getElementById('appShell');
+            if (gate) { gate.style.display = 'flex'; gate.style.opacity = '1'; gate.classList.remove('fade-out'); }
+            if (shell) shell.style.opacity = '0';
+            const btn = document.getElementById('btnLogin');
+            if (btn) btn.innerHTML = 'Unlock Workstation';
+        }
+
+        function unlockAppShell() {
+            const gate = document.getElementById('authGate');
+            if (gate) {
+                gate.classList.add('fade-out');
+                setTimeout(() => {
+                    gate.style.display = 'none';
+                    const shell = document.getElementById('appShell');
+                    if (shell) shell.style.opacity = '1';
+                }, 500);
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.currentUserEmail = null;
+                showAuthGate();
+                return;
+            }
+
+            try {
+                const tokenResult = await user.getIdTokenResult();
+                const role = tokenResult.claims.role;
+
+                if (role !== 'designer' && role !== 'admin') {
+                    showAuthError("This account doesn't have dashboard access yet. Ask an admin to grant it via grantStaffRole.");
+                    await signOut(auth);
+                    return;
+                }
+
+                hideAuthError();
+                window.currentUserEmail = user.email.toLowerCase();
+                window.currentUserRole = role;
+                const guessedBrand = window.guessBrandFromEmail(window.currentUserEmail, BRAND_CONFIG);
+                window.applyBrandThemeByKey(guessedBrand, BRAND_CONFIG);
+                window.populateBrandSwitcher(guessedBrand);
+
+                const staffNav = document.getElementById('navStaffAccess');
+                if (staffNav) staffNav.classList.toggle('hidden', role !== 'admin');
+                if (role === 'admin' && typeof window.loadPendingAccessRequests === 'function') {
+                    window.loadPendingAccessRequests();
+                }
+
+                unlockAppShell();
+
+                if (typeof window.triggerFirebaseDataLoad === 'function') {
+                    await window.triggerFirebaseDataLoad();
+                }
+            } catch (err) {
+                console.error("Auth check failed:", err);
+                showAuthError("Something went wrong verifying your account. Please try again.");
+                await signOut(auth);
+            }
+        });
+
+        document.getElementById('btnLogin').addEventListener('click', async () => {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            if (!email || !password) return showAuthError("Enter both your email and password.");
+
+            hideAuthError();
+            const btn = document.getElementById('btnLogin');
+            btn.innerHTML = `<span class="material-icons-round animate-spin">sync</span> Authenticating...`;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged above takes it from here
+            } catch (err) {
+                console.error(err);
+                showAuthError("Incorrect email or password.");
+                btn.innerHTML = 'Unlock Workstation';
+            }
+        });
+
+        document.getElementById('authPassword').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('btnLogin').click();
+        });
+
+        document.getElementById('btnLogout')?.addEventListener('click', async () => {
+            await signOut(auth);
+        });
+
+        // ==========================================
+        // ADMIN: STAFF ACCESS MANAGEMENT
+        // ==========================================
+        const callGrantStaffRole = httpsCallable(functions, 'grantStaffRole');
+
+        document.getElementById('btnGrantStaffRole')?.addEventListener('click', async () => {
+            const email = document.getElementById('staffInviteEmail').value.trim();
+            const role = document.getElementById('staffInviteRole').value;
+            const statusEl = document.getElementById('staffInviteStatus');
+            const btn = document.getElementById('btnGrantStaffRole');
+
+            if (!email) {
+                statusEl.className = 'text-xs mt-3 text-red-400';
+                statusEl.innerText = 'Enter an email address first.';
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-icons-round animate-spin">sync</span> Granting...`;
+            statusEl.classList.add('hidden');
+
+            try {
+                await callGrantStaffRole({ email, role });
+                statusEl.className = 'text-xs mt-3 text-emerald-400';
+                statusEl.innerText = `${email} now has ${role} access. They'll need to log out and back in (or wait up to an hour) for it to take effect if they were already signed in.`;
+                statusEl.classList.remove('hidden');
+                document.getElementById('staffInviteEmail').value = '';
+            } catch (err) {
+                console.error(err);
+                statusEl.className = 'text-xs mt-3 text-red-400';
+                statusEl.innerText = err.message?.includes('no user record')
+                    ? "No Firebase account exists for that email yet — create one in the Firebase Console first."
+                    : (err.message || 'Something went wrong granting access.');
+                statusEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-icons-round">person_add</span> Grant Access`;
+            }
+        });
+
+        window.loadPendingAccessRequests = async function() {
+            const container = document.getElementById('pendingAccessRequests');
+            try {
+                const snap = await getDocs(collection(db, "accessRequests"));
+                if (snap.empty) {
+                    container.innerHTML = `<p class="text-xs text-slate-500">No pending requests.</p>`;
+                    return;
+                }
+                let html = '';
+                snap.forEach((docSnap) => {
+                    const r = docSnap.data();
+                    html += `
+                        <div class="flex items-center justify-between bg-black/30 border border-white/10 rounded-lg p-3">
+                            <div>
+                                <p class="text-sm font-bold text-white">${r.name || 'Unnamed'}</p>
+                                <p class="text-[10px] text-slate-400">${r.email} · Requested: ${r.requestedBrand || 'N/A'}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="text-xs px-3 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold" onclick="window.grantPendingRequest('${docSnap.id}', '${r.email}')">Grant Designer</button>
+                                <button class="text-xs px-3 py-2 rounded bg-white/10 hover:bg-white/20 text-slate-300" onclick="window.dismissPendingRequest('${docSnap.id}')">Dismiss</button>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p class="text-xs text-red-400">Couldn't load requests.</p>`;
+            }
+        };
+
+        window.grantPendingRequest = async function(requestId, email) {
+            try {
+                await callGrantStaffRole({ email, role: 'designer' });
+                await deleteDoc(doc(db, "accessRequests", requestId));
+                window.loadPendingAccessRequests();
+            } catch (err) {
+                console.error(err);
+                alert(err.message || 'Could not grant access.');
+            }
+        };
+
+        window.dismissPendingRequest = async function(requestId) {
+            await deleteDoc(doc(db, "accessRequests", requestId));
+            window.loadPendingAccessRequests();
+        };
+
+        // ==========================================
+        // GLOBAL VARIABLES
+        // ==========================================
+        window.activeProfileData = { 
+            name: "Thomas Oldroyd", 
+            role: "New Living Space Designer", 
+            bio: "", 
+            headshot: null, 
+            portfolio: [] 
+        };
+        
+        window.rawFilesToUpload = {}; 
+        window.sniperPoints = [];
+        window.currentProjectId = null;
+        
+        let lines = []; 
+        let calibrationRatio = null;
+
+        // ==========================================
+        // UI & NAVIGATION ENGINE
+        // ==========================================
+        const sidebar = document.getElementById('appSidebar');
+        const overlay = document.getElementById('drawerOverlay');
+
+        window.toggleMenu = () => {
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                setTimeout(() => { overlay.style.display = 'none'; }, 300);
+            } else {
+                overlay.style.display = 'block';
+                void overlay.offsetWidth; 
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+            }
+        };
+
+        window.switchModule = (moduleId, clickedElement) => {
+            document.querySelectorAll('.module-view').forEach(mod => {
+                mod.classList.remove('active');
+            });
+            
+            document.getElementById(moduleId).classList.add('active');
+            
+            if (clickedElement && clickedElement.classList.contains('nav-link')) {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                clickedElement.classList.add('active');
+                document.getElementById('appBarTitle').innerText = clickedElement.innerText.replace(/^[^\w]*/, '').trim();
+            } else if (moduleId === 'module-survey') {
+                document.getElementById('appBarTitle').innerText = "Survey Engine";
+            }
+            
+            if (moduleId === 'module-gatekeeper') {
+                window.loadGatekeeperPipeline();
+            }
+
+            if (window.innerWidth < 1024 && sidebar.classList.contains('open')) {
+                window.toggleMenu();
+            }
+        };
+
+        // ==========================================
+        // BACKGROUND DATA LOAD (Triggered by the UI Script)
+        // ==========================================
+        window.triggerFirebaseDataLoad = async function() {
+            try {
+                await window.loadDesignerProfile();
+                await window.loadLiveProjects();
+            } catch (e) {
+                console.warn("Background Firebase fetch encountered an issue:", e);
+            }
+        };
+
+        // ==========================================
+        // DESIGNER PROFILE ENGINE 
+        // ==========================================
+        window.populateBrandSwitcher = function(selectedKey) {
+            const select = document.getElementById('brandSwitcher');
+            if (!select) return;
+            select.innerHTML = Object.entries(BRAND_CONFIG)
+                .filter(([key]) => key !== 'COHI')
+                .map(([key, cfg]) => `<option value="${key}" ${key === selectedKey ? 'selected' : ''}>${cfg.name}</option>`)
+                .join('');
+        };
+
+        document.getElementById('brandSwitcher')?.addEventListener('change', async (e) => {
+            const key = e.target.value;
+            window.applyBrandThemeByKey(key, BRAND_CONFIG);
+            if (window.currentUserEmail) {
+                try {
+                    await setDoc(doc(db, "designers", window.currentUserEmail), { defaultBrand: key }, { merge: true });
+                    window.activeProfileData.defaultBrand = key;
+                } catch (err) {
+                    console.warn("Couldn't save brand preference:", err);
+                }
+            }
+        });
+
+        window.loadDesignerProfile = async function() {
+            try {
+                const profileRef = doc(db, "designers", window.currentUserEmail);
+                const profileSnap = await getDoc(profileRef);
+
+                if (profileSnap.exists()) {
+                    window.activeProfileData = profileSnap.data();
+                } else {
+                    // First login for this account — seed a blank profile
+                    // doc so future edits in Settings have somewhere to save.
+                    window.activeProfileData.name = window.currentUserEmail.split('@')[0];
+                    window.activeProfileData.role = window.currentUserRole === 'admin' ? 'Administrator' : 'Design Consultant';
+                }
+
+                document.getElementById('userName').innerText = window.activeProfileData.name;
+                document.getElementById('userRole').innerText = window.activeProfileData.role;
+                document.getElementById('sidebarAvatarInitial').innerText = window.activeProfileData.name.charAt(0);
+
+                // A saved "Working As" preference overrides the initial
+                // email-based guess.
+                if (window.activeProfileData.defaultBrand && BRAND_CONFIG[window.activeProfileData.defaultBrand]) {
+                    window.applyBrandThemeByKey(window.activeProfileData.defaultBrand, BRAND_CONFIG);
+                    window.populateBrandSwitcher(window.activeProfileData.defaultBrand);
+                }
+                
+                if(window.activeProfileData.headshot) {
+                    document.getElementById('sidebarAvatarImg').src = window.activeProfileData.headshot;
+                    document.getElementById('sidebarAvatarImg').classList.add('opacity-100');
+                    document.getElementById('preview-avatar').src = window.activeProfileData.headshot;
+                    document.getElementById('preview-avatar').classList.add('active');
+                }
+
+                document.getElementById('profName').value = window.activeProfileData.name;
+                document.getElementById('profRole').value = window.activeProfileData.role;
+                document.getElementById('profBio').value = window.activeProfileData.bio || "";
+                
+                window.renderPortfolioGrid();
+            } catch (error) { 
+                console.error("Profile load error:", error); 
+                throw error; 
+            }
+        };
+
+        document.getElementById('upload-avatar').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                window.resizeImage(event.target.result, 400, (resizedBase64) => {
+                    window.activeProfileData.headshot = resizedBase64;
+                    const pImg = document.getElementById('preview-avatar');
+                    pImg.src = resizedBase64;
+                    pImg.classList.add('active');
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('upload-portfolio').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            
+            files.forEach(file => {
+                if (window.activeProfileData.portfolio.length >= 4) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    window.resizeImage(event.target.result, 800, (resizedBase64) => {
+                        if (!window.activeProfileData.portfolio) {
+                            window.activeProfileData.portfolio = [];
+                        }
+                        window.activeProfileData.portfolio.push(resizedBase64);
+                        window.renderPortfolioGrid();
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+            this.value = ''; 
+        });
+
+        window.renderPortfolioGrid = function() {
+            const container = document.getElementById('portfolioContainer');
+            let html = `
+                <div class="portfolio-slot" onclick="document.getElementById('upload-portfolio').click()">
+                    <span class="material-icons-round text-slate-400">add</span>
+                </div>
+            `;
+            
+            if (window.activeProfileData.portfolio) {
+                window.activeProfileData.portfolio.forEach((imgSrc, index) => {
+                    html += `
+                        <div class="portfolio-slot">
+                            <img src="${imgSrc}" class="portfolio-img">
+                            <button onclick="removePortfolioImage(${index})" class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 z-10 shadow hover:scale-110 transition">
+                                <span class="material-icons-round text-[12px]">close</span>
+                            </button>
+                        </div>
+                    `;
+                });
+            }
+            container.innerHTML = html;
+        };
+
+        window.removePortfolioImage = (index) => {
+            window.activeProfileData.portfolio.splice(index, 1);
+            window.renderPortfolioGrid();
+        };
+
+        window.resizeImage = function(base64Str, maxWidth, callback) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let scaleSize = maxWidth / img.width;
+                if(scaleSize > 1) scaleSize = 1;
+                
+                canvas.width = img.width * scaleSize; 
+                canvas.height = img.height * scaleSize;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                callback(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.src = base64Str;
+        };
+
+        document.getElementById('btn-save-profile').addEventListener('click', async (e) => {
+            const btn = e.target;
+            btn.innerHTML = `<span class="material-icons-round animate-spin">sync</span> Syncing...`;
+            
+            window.activeProfileData.name = document.getElementById('profName').value.trim();
+            window.activeProfileData.role = document.getElementById('profRole').value.trim();
+            window.activeProfileData.bio = document.getElementById('profBio').value.trim();
+
+            try {
+                await setDoc(doc(db, "designers", window.currentUserEmail), window.activeProfileData, { merge: true });
+                
+                document.getElementById('userName').innerText = window.activeProfileData.name;
+                document.getElementById('userRole').innerText = window.activeProfileData.role;
+                
+                if(window.activeProfileData.headshot) {
+                    const sbImg = document.getElementById('sidebarAvatarImg');
+                    sbImg.src = window.activeProfileData.headshot;
+                    sbImg.classList.add('opacity-100');
+                }
+                
+                btn.innerHTML = `<span class="material-icons-round">check_circle</span> Profile Synced ✓`;
+                btn.classList.replace('btn-primary', 'bg-[#238636]');
+                btn.style.color = 'white';
+                
+                setTimeout(() => {
+                    btn.innerHTML = `<span class="material-icons-round">save</span> Sync Profile to Cloud`;
+                    btn.classList.replace('bg-[#238636]', 'btn-primary');
+                    btn.style.color = '';
+                }, 2000);
+            } catch (err) {
+                console.error("Profile Error", err);
+                alert("Failed to sync profile. Check connection.");
+                btn.innerHTML = `<span class="material-icons-round">save</span> Sync Profile to Cloud`;
+            }
+        });
+
+        // ==========================================
+        // PHOTO HANDLING (FILE STORAGE QUEUE FIX)
+        // ==========================================
+        window.queuePhotoUpload = function(input, category) {
+            const file = input.files[0]; 
+            if(!file) return;
+            
+            // Queue the raw file object to be uploaded to Firebase Storage later
+            window.rawFilesToUpload[category] = file;
+            
+            const badge = document.getElementById('badge-' + category); 
+            const btn = document.getElementById('btn-' + category);
+            
+            badge.innerText = "1";
+            btn.classList.add('has-photos');
+        };
+
+        // ==========================================
+        // ELEVATION SNIPER CANVAS ENGINE
+        // ==========================================
+        const canvas = document.getElementById('sniperCanvas');
+        const ctx = canvas.getContext('2d');
+        const zoomSlider = document.getElementById('sniperZoom');
+        const markBtn = document.getElementById('btn-sniper-mark');
+        
+        let sniperImg = null; 
+        let imgScale = 1; 
+        let imgX = 0, imgY = 0; 
+        let isDragging = false; 
+        let startDragX = 0, startDragY = 0;
+
+        document.getElementById('btn-load-sniper-img')?.addEventListener('click', () => {
+            const input = document.createElement('input'); 
+            input.type = 'file'; 
+            input.accept = 'image/*';
+            input.onchange = (e) => { 
+                const file = e.target.files[0]; 
+                if(file) { 
+                    const reader = new FileReader(); 
+                    reader.onload = (ev) => window.dispatchEvent(new CustomEvent('loadSniperImage', { detail: ev.target.result })); 
+                    reader.readAsDataURL(file); 
+                } 
+            };
+            input.click();
+        });
+
+        window.addEventListener('loadSniperImage', (e) => {
+            sniperImg = new Image();
+            sniperImg.onload = () => {
+                imgScale = Math.min(canvas.width / sniperImg.width, canvas.height / sniperImg.height);
+                
+                if (zoomSlider) { 
+                    zoomSlider.value = imgScale; 
+                    zoomSlider.min = imgScale * 0.5; 
+                }
+                
+                imgX = (canvas.width - (sniperImg.width * imgScale)) / 2; 
+                imgY = (canvas.height - (sniperImg.height * imgScale)) / 2;
+                
+                window.sniperPoints = []; 
+                lines = []; 
+                calibrationRatio = null; 
+                resetMarkButton(); 
+                drawSniper();
+            };
+            sniperImg.src = e.detail;
+        });
+
+        zoomSlider?.addEventListener('input', (e) => {
+            if(!sniperImg) return;
+            const newScale = parseFloat(e.target.value); 
+            const cx = canvas.width / 2; 
+            const cy = canvas.height / 2;
+            
+            imgX = cx - ((cx - imgX) * (newScale / imgScale)); 
+            imgY = cy - ((cy - imgY) * (newScale / imgScale));
+            imgScale = newScale; 
+            
+            drawSniper();
+        });
+
+        // Canvas Mouse Interactions
+        canvas.addEventListener('mousedown', (e) => { 
+            if(!sniperImg) return; 
+            isDragging = true; 
+            startDragX = e.offsetX - imgX; 
+            startDragY = e.offsetY - imgY; 
+            canvas.style.cursor = 'grabbing'; 
+        });
+        
+        canvas.addEventListener('mousemove', (e) => { 
+            if(!isDragging || !sniperImg) return; 
+            imgX = e.offsetX - startDragX; 
+            imgY = e.offsetY - startDragY; 
+            drawSniper(); 
+        });
+        
+        canvas.addEventListener('mouseup', () => { 
+            isDragging = false; 
+            canvas.style.cursor = 'grab'; 
+        });
+        
+        canvas.addEventListener('mouseleave', () => { 
+            isDragging = false; 
+            canvas.style.cursor = 'grab'; 
+        });
+
+        // Canvas Touch Interactions
+        canvas.addEventListener('touchstart', (e) => { 
+            if(!sniperImg || e.touches.length > 1) return; 
+            const touch = e.touches[0]; 
+            const rect = canvas.getBoundingClientRect(); 
+            isDragging = true; 
+            startDragX = (touch.clientX - rect.left) - imgX; 
+            startDragY = (touch.clientY - rect.top) - imgY; 
+        }, { passive: false });
+        
+        canvas.addEventListener('touchmove', (e) => { 
+            if(!isDragging || !sniperImg || e.touches.length > 1) return; 
+            e.preventDefault(); 
+            const touch = e.touches[0]; 
+            const rect = canvas.getBoundingClientRect(); 
+            imgX = (touch.clientX - rect.left) - startDragX; 
+            imgY = (touch.clientY - rect.top) - startDragY; 
+            drawSniper(); 
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', () => { 
+            isDragging = false; 
+        }); 
+        
+        canvas.addEventListener('touchcancel', () => { 
+            isDragging = false; 
+        });
+
+        function drawSniper() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            if(!sniperImg) return;
+            
+            // Draw Main Image
+            ctx.drawImage(sniperImg, 0, 0, sniperImg.width, sniperImg.height, imgX, imgY, sniperImg.width * imgScale, sniperImg.height * imgScale);
+
+            // Draw Lines and Dimensions
+            lines.forEach(line => {
+                const p1 = window.sniperPoints[line.p1]; 
+                const p2 = window.sniperPoints[line.p2];
+                const screenX1 = (p1.x * imgScale) + imgX; 
+                const screenY1 = (p1.y * imgScale) + imgY; 
+                const screenX2 = (p2.x * imgScale) + imgX; 
+                const screenY2 = (p2.y * imgScale) + imgY;
+                
+                ctx.beginPath(); 
+                ctx.moveTo(screenX1, screenY1); 
+                ctx.lineTo(screenX2, screenY2); 
+                ctx.strokeStyle = '#0dcaf0'; 
+                ctx.lineWidth = 2; 
+                ctx.stroke();
+                
+                const midX = (screenX1 + screenX2) / 2; 
+                const midY = (screenY1 + screenY2) / 2; 
+                const text = line.realLength + 'mm';
+                
+                ctx.font = 'bold 12px -apple-system, sans-serif'; 
+                const textWidth = ctx.measureText(text).width;
+                
+                ctx.fillStyle = 'rgba(10, 10, 12, 0.9)'; 
+                ctx.fillRect(midX - (textWidth / 2) - 8, midY - 12, textWidth + 16, 24);
+                
+                ctx.fillStyle = '#f4f4f6'; 
+                ctx.fillText(text, midX - (textWidth / 2), midY + 4);
+            });
+
+            // Draw Target Points
+            window.sniperPoints.forEach((p, index) => {
+                const screenX = (p.x * imgScale) + imgX; 
+                const screenY = (p.y * imgScale) + imgY;
+                
+                ctx.beginPath(); 
+                ctx.arc(screenX, screenY, 4, 0, Math.PI * 2); 
+                
+                ctx.fillStyle = (index === window.sniperPoints.length - 1 && window.sniperPoints.length % 2 !== 0) ? '#0dcaf0' : '#8b8b93'; 
+                ctx.fill(); 
+                
+                ctx.strokeStyle = '#fff'; 
+                ctx.lineWidth = 1.5; 
+                ctx.stroke();
+            });
+
+            // Draw Center Crosshair
+            const cx = canvas.width / 2; 
+            const cy = canvas.height / 2;
+            
+            ctx.beginPath(); 
+            ctx.moveTo(cx - 20, cy); 
+            ctx.lineTo(cx + 20, cy); 
+            ctx.moveTo(cx, cy - 20); 
+            ctx.lineTo(cx, cy + 20); 
+            
+            ctx.strokeStyle = 'rgba(13, 202, 240, 0.9)'; 
+            ctx.lineWidth = 1.5; 
+            ctx.stroke();
+            
+            ctx.beginPath(); 
+            ctx.arc(cx, cy, 10, 0, Math.PI * 2); 
+            ctx.strokeStyle = 'rgba(13, 202, 240, 0.5)'; 
+            ctx.stroke();
+        }
+
+        markBtn?.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            if(!sniperImg) return alert("Load an image first.");
+            
+            const cx = canvas.width / 2; 
+            const cy = canvas.height / 2;
+            
+            window.sniperPoints.push({ x: (cx - imgX) / imgScale, y: (cy - imgY) / imgScale });
+            
+            if(window.sniperPoints.length > 0 && window.sniperPoints.length % 2 === 0) {
+                const p1Index = window.sniperPoints.length - 2; 
+                const p2Index = window.sniperPoints.length - 1;
+                
+                const p1 = window.sniperPoints[p1Index]; 
+                const p2 = window.sniperPoints[p2Index];
+                
+                const pixelDist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+                
+                if(!calibrationRatio) {
+                    const realWorld = prompt("CALIBRATION MODE: Enter the length of this line (in mm):");
+                    if(realWorld && !isNaN(realWorld)) {
+                        calibrationRatio = parseFloat(realWorld) / pixelDist; 
+                        lines.push({ p1: p1Index, p2: p2Index, realLength: realWorld });
+                        markBtn.innerText = "🎯 Drop Pin (Calibrated)"; 
+                        markBtn.style.backgroundColor = "#238636"; 
+                        markBtn.style.color = "#fff";
+                    } else { 
+                        window.sniperPoints.pop(); 
+                    }
+                } else {
+                    const calculatedLength = Math.round(pixelDist * calibrationRatio);
+                    const finalLength = prompt("Calculated measurement (mm). Edit if needed:", calculatedLength);
+                    
+                    if(finalLength && !isNaN(finalLength)) {
+                        lines.push({ p1: p1Index, p2: p2Index, realLength: Math.round(finalLength) });
+                    } else { 
+                        window.sniperPoints.pop(); 
+                    }
+                }
+            } 
+            drawSniper();
+        });
+
+        document.getElementById('btn-sniper-clear')?.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            window.sniperPoints = []; 
+            lines = []; 
+            calibrationRatio = null; 
+            resetMarkButton(); 
+            drawSniper(); 
+        });
+
+        function resetMarkButton() { 
+            if (markBtn) { 
+                markBtn.innerText = "🎯 Drop Target Pin"; 
+                markBtn.style.backgroundColor = ""; 
+                markBtn.style.color = ""; 
+            } 
+        }
+
+        // ==========================================
+        // UTILITIES & SYNC LOGIC 
+        // ==========================================
+        document.getElementById('planningPerms')?.addEventListener('change', (e) => { 
+            const cb = document.getElementById('cb-planning'); 
+            if(cb) cb.checked = (e.target.value !== 'Permitted Development (No Action)' && e.target.value !== ''); 
+        });
+        
+        document.getElementById('sapCalcs')?.addEventListener('change', (e) => { 
+            const cb = document.getElementById('cb-sap'); 
+            if(cb) cb.checked = (e.target.value === 'Yes'); 
+        });
+        
+        document.getElementById('roofType')?.addEventListener('change', (e) => { 
+            const cb = document.getElementById('cb-roof'); 
+            if(cb) cb.checked = (e.target.value !== ''); 
+        });
+
+        document.getElementById('btn-ai-polish')?.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            const notesEl = document.getElementById('designerNotes');
+            
+            if(!notesEl.value.trim()) return alert("Enter rough notes first.");
+            
+            e.target.innerHTML = `<span class="material-icons-round animate-spin">sync</span> Polishing...`;
+            
+            setTimeout(() => {
+                notesEl.value = "PROFESSIONAL OBSERVATIONS:\n" + notesEl.value.split('\n').filter(l=>l.trim()!=='').map(l=>`• ${l.charAt(0).toUpperCase() + l.slice(1)}`).join('\n');
+                e.target.innerHTML = `<span class="material-icons-round">auto_fix_high</span> AI Polish Notes`;
+            }, 800);
+        });
+
+        const setProgress = (percent, label) => {
+            const wrapper = document.getElementById('syncProgressWrapper');
+            wrapper.style.display = 'block';
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').innerText = label;
+        };
+
+        // Convert dataURL to Blob (For Sniper Canvas upload to Storage)
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), 
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), 
+                n = bstr.length, 
+                u8arr = new Uint8Array(n);
+                
+            while(n--) { 
+                u8arr[n] = bstr.charCodeAt(n); 
+            }
+            
+            return new Blob([u8arr], {type:mime});
+        }
+
+        // ---------------------------------------------------------
+        // THE MAIN SYNC FUNCTION (Saves to Firestore + Storage)
+        // ---------------------------------------------------------
+        document.getElementById('btn-sync')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const clientNameVal = document.getElementById('clientName').value.trim();
+            const postCodeVal = document.getElementById('postCode').value.trim();
+            const rawPhone = document.getElementById('clientPhone').value || "";
+            const cleanPhoneDigits = rawPhone.replace(/\D/g, ''); 
+            const autoGeneratedPin = cleanPhoneDigits.length >= 4 ? cleanPhoneDigits.slice(-4) : "1234";
+
+            if (!clientNameVal || !postCodeVal || !rawPhone) {
+                return alert("Lead Name, Client Mobile, and Site Postcode are mandatory.");
+            }
+
+            const btn = e.target;
+            btn.disabled = true;
+            setProgress(10, "Initializing Secure Transfer...");
+
+            try {
+                let activeProjectId = `${clientNameVal}_${postCodeVal}`.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                
+                // 1. Upload Images to Firebase Storage FIRST
+                const uploadedImageUrls = {};
+                const categoriesToUpload = Object.keys(window.rawFilesToUpload);
+                
+                for (let i = 0; i < categoriesToUpload.length; i++) {
+                    const category = categoriesToUpload[i];
+                    const file = window.rawFilesToUpload[category];
+                    
+                    setProgress(20 + (i * 10), `Uploading ${category} photo...`);
+                    
+                    const imgRef = ref(storage, `surveys/${activeProjectId}/${category}_${Date.now()}.jpg`);
+                    await uploadBytes(imgRef, file);
+                    
+                    uploadedImageUrls[category] = await getDownloadURL(imgRef);
+                }
+
+                // 2. Upload Sniper Canvas if it was used
+                if (window.sniperPoints && window.sniperPoints.length > 0) {
+                    setProgress(70, "Uploading Sniper Canvas...");
+                    const blob = dataURLtoBlob(canvas.toDataURL('image/jpeg', 0.9));
+                    const sniperRef = ref(storage, `surveys/${activeProjectId}/sniper_${Date.now()}.jpg`);
+                    await uploadBytes(sniperRef, blob);
+                    
+                    uploadedImageUrls['sniper'] = await getDownloadURL(sniperRef);
+                }
+
+                // 3. Build the Firestore Payload
+                setProgress(80, "Writing Database Document...");
+                
+                const surveyData = {
+                    designerEmail: window.currentUserEmail, 
+                    designerProfile: window.activeProfileData,
+                    customerProfile: {
+                        leadName: clientNameVal, 
+                        customerNum: document.getElementById('clientNum').value,
+                        postcode: postCodeVal, 
+                        phone: rawPhone, 
+                        vaultPIN: autoGeneratedPin, 
+                        apptDate: document.getElementById('apptDate').value, 
+                        revisitDate: document.getElementById('revisitDate').value
+                    },
+                    projectSpecs: {
+                        buildType: document.getElementById('buildType').value, 
+                        proposedSize: document.getElementById('proposedSize').value,
+                        roofStyle: document.getElementById('roofType').value, 
+                        frameColour: document.getElementById('frameColour').value,
+                        internalFrameColour: document.getElementById('internalFrameColour').value, 
+                        baseType: document.getElementById('baseType').value,
+                        dpcDepth: document.getElementById('dpcDepth').value, 
+                        fasciaHeight: document.getElementById('fasciaHeight').value,
+                        airBricks: document.getElementById('airBricks').value, 
+                        accessDifficult: document.getElementById('accessDifficult').value,
+                        accessWidth: document.getElementById('accessWidth').value, 
+                        drainage: document.getElementById('drainage').value,
+                        wallObstacles: document.getElementById('wallObstacles').value, 
+                        buildingRegs: document.getElementById('buildingRegs').value,
+                        planningPerms: document.getElementById('planningPerms').value, 
+                        roofPitch: document.getElementById('roofPitch').value,
+                        sapCalcs: document.getElementById('sapCalcs').value
+                    },
+                    media: uploadedImageUrls,
+                    pamphlets: {
+                        brochure: document.getElementById('cb-brochure').checked, 
+                        warranty: document.getElementById('cb-warranty').checked,
+                        planning: document.getElementById('cb-planning').checked, 
+                        sap: document.getElementById('cb-sap').checked,
+                        roof: document.getElementById('cb-roof').checked
+                    },
+                    designerInsights: { 
+                        prep: document.getElementById('designerNotes').value 
+                    },
+                    timestamp: serverTimestamp()
+                };
+                
+                // 4. Save to Firestore
+                await setDoc(doc(db, "surveys", activeProjectId), surveyData, { merge: true });
+                window.currentProjectId = activeProjectId;
+
+                setProgress(100, `Vault Live. PIN: ${autoGeneratedPin}`);
+                window.loadLiveProjects();
+                
+                // Reset UI
+                setTimeout(() => {
+                    btn.innerHTML = `<span class="material-icons-round text-white drop-shadow">check_circle</span> Data Synced`;
+                    btn.style.background = "#238636";
+                    window.rawFilesToUpload = {}; 
+                    
+                    document.querySelectorAll('.badge').forEach(b => b.innerText = "0");
+                    document.querySelectorAll('.photo-btn').forEach(b => b.classList.remove('has-photos'));
+                    
+                    setTimeout(() => { 
+                        document.getElementById('syncProgressWrapper').style.display = 'none';
+                        btn.style.background = ""; 
+                        btn.innerHTML = `<span class="material-icons-round">cloud_upload</span> Upload & Sync Data`; 
+                        btn.disabled = false; 
+                    }, 3000);
+                }, 800);
+
+            } catch(err) {
+                console.error("Firebase Sync Error:", err);
+                alert("Upload failed. Make sure your Firestore & Storage security rules allow writes.");
+                document.getElementById('syncProgressWrapper').style.display = 'none';
+                btn.disabled = false;
+            }
+        });
+
+        // ==========================================
+        // LIVE FIREBASE PROJECT LIBRARY (DASHBOARD)
+        // ==========================================
+        window.loadLiveProjects = async function() {
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = `<div class="col-span-full text-center py-10"><span class="material-icons-round animate-spin text-4xl text-[color:var(--brand-primary)]">sync</span></div>`;
+
+            try {
+                const q = query(collection(db, "surveys"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                let html = '';
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const isAdmin = window.currentUserRole === 'admin';
+                    if (!isAdmin && data.designerEmail && data.designerEmail !== window.currentUserEmail) return;
+
+                    const id = docSnap.id;
+                    const profile = data.customerProfile || {};
+                    const media = data.media || {};
+                    const hasQuote = !!(data.uDesignData && data.uDesignData.totalPrice);
+
+                    const name = profile.leadName || 'Unnamed Client';
+                    const pc = profile.postcode || 'Unknown Loc';
+                    const date = profile.apptDate || 'Recent';
+                    
+                    // Fallback to stock image if no front image is synced
+                    const img = media.front || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80';
+                    const imgFilter = media.front ? '' : 'filter: grayscale(40%) contrast(110%);';
+                    
+                    const tagStyle = hasQuote ? 'border-[color:var(--success)] text-[color:var(--success)]' : 'border-[color:var(--brand-primary)] text-[color:var(--brand-primary)]';
+                    const tagText = hasQuote ? 'Vault Ready' : 'Survey Mode';
+
+                    html += `
+                        <div class="md-surface doc-card group" onclick="openProject('${id}')">
+                            <div class="doc-preview-area relative">
+                                <img src="${img}" class="w-full h-full object-cover opacity-60 transition duration-500 group-hover:opacity-100 group-hover:scale-110" style="${imgFilter}">
+                                <span class="absolute top-2 right-2 border bg-black/60 backdrop-blur px-2 py-1 rounded text-[9px] font-bold uppercase tracking-widest z-10 ${tagStyle}">${tagText}</span>
+                            </div>
+                            <div class="p-4 border-t border-white/10 bg-slate-900/80 backdrop-blur relative z-20">
+                                <h4 class="text-sm font-bold text-white truncate drop-shadow">${name}</h4>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">${pc}</span>
+                                    <span class="text-[9px] px-2 py-1 bg-black/40 rounded text-slate-400">${date}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                grid.innerHTML = html || `
+                    <div class="col-span-full md-surface p-10 text-center border-dashed border-2 border-white/10">
+                        <span class="material-icons-round text-4xl text-slate-500 mb-2">folder_off</span>
+                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">No active projects found.</p>
+                    </div>`;
+                    
+            } catch (error) {
+                console.error("Dashboard Load Error:", error);
+                grid.innerHTML = '<p class="text-xs text-red-400 col-span-full">Failed to load live projects. Check security rules.</p>';
+            }
+        };
+
+        // Open an existing project from the Dashboard
+        window.openProject = async function(id) {
+            try {
+                const docRef = doc(db, "surveys", id);
+                const docSnap = await getDoc(docRef);
+                
+                if (!docSnap.exists()) return alert("Survey record not found.");
+                const data = docSnap.data();
+                
+                document.getElementById('clientName').value = data.customerProfile?.leadName || '';
+                document.getElementById('clientNum').value = data.customerProfile?.customerNum || '';
+                document.getElementById('postCode').value = data.customerProfile?.postcode || '';
+                document.getElementById('clientPhone').value = data.customerProfile?.phone || ''; 
+                document.getElementById('apptDate').value = data.customerProfile?.apptDate || '';
+                document.getElementById('revisitDate').value = data.customerProfile?.revisitDate || '';
+                
+                if(data.projectSpecs) {
+                    document.getElementById('buildType').value = data.projectSpecs.buildType || '';
+                    document.getElementById('proposedSize').value = data.projectSpecs.proposedSize || '';
+                    document.getElementById('roofType').value = data.projectSpecs.roofStyle || '';
+                    document.getElementById('frameColour').value = data.projectSpecs.frameColour || '';
+                    document.getElementById('internalFrameColour').value = data.projectSpecs.internalFrameColour || '';
+                    document.getElementById('baseType').value = data.projectSpecs.baseType || '';
+                    document.getElementById('dpcDepth').value = data.projectSpecs.dpcDepth || '';
+                    document.getElementById('fasciaHeight').value = data.projectSpecs.fasciaHeight || '';
+                    document.getElementById('airBricks').value = data.projectSpecs.airBricks || '';
+                    document.getElementById('accessDifficult').value = data.projectSpecs.accessDifficult || '';
+                    document.getElementById('accessWidth').value = data.projectSpecs.accessWidth || '';
+                    document.getElementById('drainage').value = data.projectSpecs.drainage || '';
+                    document.getElementById('wallObstacles').value = data.projectSpecs.wallObstacles || '';
+                    document.getElementById('buildingRegs').value = data.projectSpecs.buildingRegs || '';
+                    document.getElementById('planningPerms').value = data.projectSpecs.planningPerms || '';
+                    document.getElementById('roofPitch').value = data.projectSpecs.roofPitch || '';
+                    document.getElementById('sapCalcs').value = data.projectSpecs.sapCalcs || '';
+                }
+                
+                if(data.designerInsights) { 
+                    document.getElementById('designerNotes').value = data.designerInsights.prep || ''; 
+                }
+                
+                window.currentProjectId = id;
+                
+                const surveyNav = document.querySelectorAll('.nav-link')[1];
+                window.switchModule('module-survey', surveyNav);
+                
+            } catch (err) { 
+                alert("Could not load project details."); 
+            }
+        };
+
+        // ==========================================
+        // PROJECT GATEKEEPER (PDF SCRAPER)
+        // ==========================================
+        window.loadGatekeeperPipeline = async function() {
+            const container = document.getElementById('gatekeeperPipeline');
+            container.innerHTML = `<div class="text-center py-10"><span class="material-icons-round animate-spin text-[color:var(--brand-primary)]">sync</span></div>`;
+            
+            try {
+                const q = query(collection(db, "surveys"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                let html = '';
+                
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const isAdmin = window.currentUserRole === 'admin';
+                    if (!isAdmin && data.designerEmail && data.designerEmail !== window.currentUserEmail) return;
+                    
+                    const id = docSnap.id;
+                    const name = data.customerProfile?.leadName || 'Unnamed';
+                    const pc = data.customerProfile?.postcode || '';
+                    const hasQuote = !!(data.uDesignData && data.uDesignData.totalPrice);
+                    const status = hasQuote ? 'Quote Unlocked' : 'Awaiting Quote';
+                    const statusColor = hasQuote ? 'text-emerald-400 border-emerald-900' : 'text-amber-400 border-amber-900';
+                    const unreadBadge = data.hasUnreadClientMessage
+                        ? `<span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/50 ml-2 animate-pulse">New Message</span>`
+                        : '';
+
+                    html += `
+                        <div class="bg-black/30 p-4 rounded-lg border border-white/10 cursor-pointer hover:border-[color:var(--brand-primary)] hover:bg-white/5 transition" onclick="selectGatekeeperProject('${id}', '${name}')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-white text-sm drop-shadow">${name}</h4>
+                                <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border ${statusColor}">${status}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-widest">${pc} ${unreadBadge}</p>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html || `<p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mt-4">Pipeline Empty</p>`;
+                
+            } catch(e) { 
+                container.innerHTML = '<p class="text-xs text-red-400 text-center">Error loading pipeline.</p>'; 
+            }
+        };
+
+        // This module used to have its OWN PDF-scraper and its OWN write
+        // path to Firestore (a third one, alongside quotes.html and
+        // admin-gatekeeper.html) — writing to a disconnected field with no
+        // access-level control at all. Rather than maintain three separate
+        // "set the price" tools, this now just launches the one canonical
+        // control panel (which has its own PDF auto-fill, manual entry,
+        // design uploads, AND the actual access-level switch) for the
+        // selected project.
+        window.selectGatekeeperProject = function(id, name) {
+            const dropZone = document.getElementById('pdfDropZone');
+            dropZone.innerHTML = `
+                <span class="material-icons-round text-6xl text-[color:var(--brand-primary)] mb-4 drop-shadow">lock_open</span>
+                <h3 class="text-xl font-bold text-white mb-2 drop-shadow">${name}</h3>
+                <p class="text-sm text-slate-300 max-w-md mb-6">Set the price and flip the customer's vault access from the Gatekeeper control panel.</p>
+                <button class="btn-primary px-8" onclick="window.open('admin-gatekeeper.html?id=${id}', '_blank')">
+                    <span class="material-icons-round mr-2 drop-shadow">open_in_new</span> Open in Gatekeeper
+                </button>
+            `;
+        };
+
+        // ==========================================
+        // COMPILER & ROUTING BUTTONS
+        // ==========================================
+        document.getElementById('btnScrapeCompile')?.addEventListener('click', async (e) => {
+            const btn = e.target;
+            btn.innerHTML = `<span class="material-icons-round animate-spin">sync</span> Extracting Data...`;
+            btn.disabled = true;
+            document.getElementById('scrapingConsole').classList.remove('hidden');
+            
+            const logs = ['log1', 'log2', 'log3', 'log4', 'log5'];
+            logs.forEach((id, index) => {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    el.classList.remove('opacity-0');
+                    el.classList.add('text-[color:var(--brand-primary)]');
+                }, (index + 1) * 800);
+            });
+
+            setTimeout(() => {
+                document.getElementById('logSuccess').classList.remove('opacity-0');
+                btn.innerHTML = `<span class="material-icons-round text-white">check_circle</span> Dossier Compiled`;
+                btn.classList.replace('btn-primary', 'bg-[#238636]');
+            }, 4800);
+        });
+
+        document.getElementById('btn-open-final-pdf')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = `pdf-compiler.html?id=${window.currentProjectId || 'DEMO_PROJECT_123'}`;
+        });
+
+        document.getElementById('btn-generate-pdf')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = `pdf-compiler.html?id=${window.currentProjectId || 'DEMO_PROJECT_123'}`;
+        });
+
+        document.getElementById('btn-vault')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = `vault.html?id=${window.currentProjectId || 'DEMO_PROJECT_123'}`;
+        });
+
+    </script>
+</body>
+</html>

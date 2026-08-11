@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Your Project Vault | Yorkshire Windows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- Luxury Typography Pairing -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Yorkshire Windows brand blue retained as a subtle accent */
+            --brand-primary: #005A9C; 
+            
+            /* Luxury Palette */
+            --onyx: #0a0a0a;
+            --charcoal: #1a1a1a;
+            --slate: #2d2d2d;
+            --paper: #fcfcfc;
+            --champagne: #D4AF37;
+            --champagne-muted: rgba(212, 175, 55, 0.2);
+            --border-delicate: #e5e5e5;
+        }
+
+        body { 
+            background-color: var(--paper); 
+            color: var(--charcoal); 
+            font-family: 'Montserrat', sans-serif;
+            -webkit-font-smoothing: antialiased; 
+            height: 100%;
+        }
+
+        /* Editorial Typography */
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Architectural Framing */
+        .glass-surface {
+            background: #ffffff;
+            border: 1px solid var(--border-delicate);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+        }
+        
+        .glass-surface::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--border-delicate);
+            transform: scaleX(0);
+            transition: transform 0.6s ease;
+            transform-origin: right;
+        }
+        
+        .glass-surface:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        /* Luxury Buttons */
+        .luxury-btn {
+            background: var(--onyx);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 18px 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            border: 1px solid var(--onyx);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .luxury-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .luxury-btn:hover::before {
+            left: 100%;
+        }
+
+        .luxury-btn.gold-accent {
+            background: var(--onyx);
+            border-color: var(--champagne);
+            color: var(--champagne);
+        }
+        .luxury-btn.gold-accent:hover {
+            background: var(--champagne);
+            color: var(--onyx);
+        }
+
+        .secondary-btn {
+            background: transparent;
+            color: var(--charcoal);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 16px 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-delicate);
+        }
+        .secondary-btn:hover {
+            border-color: var(--charcoal);
+            background: var(--paper);
+        }
+
+        /* Premium Accordions */
+        .accordion-item {
+            border-bottom: 1px solid var(--border-delicate);
+            overflow: hidden;
+        }
+        .accordion-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--charcoal);
+            text-align: left;
+        }
+        .accordion-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .accordion-content {
+            max-height: 0;
+            transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            opacity: 0;
+        }
+        .accordion-content.open {
+            max-height: 2000px;
+            opacity: 1;
+            padding-bottom: 24px;
+        }
+        .accordion-icon {
+            transition: transform 0.4s ease;
+            color: var(--champagne);
+            font-weight: 300;
+        }
+        .open .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        /* The Black Card Quote Reveal */
+        .black-card {
+            background: var(--onyx);
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+        .quote-blur {
+            filter: blur(16px);
+            user-select: none;
+            pointer-events: none;
+            transition: filter 1.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+            opacity: 0.4;
+        }
+        .quote-unlocked .quote-blur {
+            filter: blur(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .reveal-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        .quote-unlocked .reveal-overlay {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Museum Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .gallery-item {
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            background: #eee;
+            border: 1px solid var(--border-delicate);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s;
+            filter: grayscale(20%);
+        }
+        .gallery-item:hover img {
+            transform: scale(1.05);
+            filter: grayscale(0%);
+        }
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.2) 60%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            color: white;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        .gallery-overlay h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            color: var(--champagne);
+        }
+        .gallery-overlay p {
+            font-size: 10px;
+            font-weight: 300;
+            line-height: 1.5;
+            letter-spacing: 0.5px;
+            color: #d1d5db;
+        }
+
+        /* Minimalist PIN Input */
+        .pin-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 400;
+            border: none;
+            border-bottom: 2px solid var(--border-delicate);
+            background: transparent;
+            color: var(--charcoal);
+            transition: all 0.3s ease;
+            border-radius: 0;
+        }
+        .pin-input:focus {
+            outline: none;
+            border-bottom-color: var(--champagne);
+        }
+
+        /* Minimalist Data Cards */
+        .data-card {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-delicate);
+        }
+        .data-card-title {
+            font-size: 9px;
+            color: var(--slate);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        .data-card-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--charcoal);
+            margin-bottom: 10px;
+        }
+        .data-card-explain {
+            font-size: 11px;
+            font-weight: 300;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Animations */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-enter {
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- SECURE CLIENT PIN GATE -->
+    <div id="clientAuthGate" class="fixed inset-0 z-[9999] flex items-center justify-center bg-[color:var(--paper)] p-6 transition-opacity duration-700">
+        <div class="p-12 w-full max-w-md text-center">
+            <h1 class="text-3xl font-serif tracking-widest text-charcoal mb-4 uppercase">Yorkshire</h1>
+            <div class="h-[1px] w-12 bg-[color:var(--champagne)] mx-auto mb-4"></div>
+            <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-12">Private Architectural Dossier</p>
+            
+            <p class="text-xs text-gray-400 mb-8 font-light tracking-wide leading-relaxed">Please enter the secure access key provided by your design consultant to view your project.</p>
+            
+            <div class="flex justify-center gap-4 mb-12">
+                <input type="password" maxlength="1" class="pin-input" id="pin1" onkeyup="moveToNext(this, 'pin2')">
+                <input type="password" maxlength="1" class="pin-input" id="pin2" onkeyup="moveToNext(this, 'pin3', 'pin1')">
+                <input type="password" maxlength="1" class="pin-input" id="pin3" onkeyup="moveToNext(this, 'pin4', 'pin2')">
+                <input type="password" maxlength="1" class="pin-input" id="pin4" onkeyup="moveToNext(this, null, 'pin3')">
+            </div>
+            
+            <button id="btnUnlockVault" class="luxury-btn w-full">Access Dossier</button>
+            <p id="pinError" class="text-red-800 text-[10px] uppercase tracking-widest font-bold mt-6 opacity-0 transition-opacity">Incorrect Access Key.</p>
+        </div>
+    </div>
+
+    <!-- MAIN VAULT APP -->
+    <div id="vaultApp" class="hidden min-h-screen pb-32">
+        
+        <!-- Minimalist Header -->
+        <header class="bg-[color:var(--paper)] border-b border-[color:var(--border-delicate)] sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-serif tracking-[0.2em] uppercase text-[color:var(--charcoal)]">Yorkshire</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[color:var(--champagne)] animate-pulse"></span>
+                    <span class="text-[9px] text-gray-400 uppercase tracking-[0.2em]">Secure Connection</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-12">
+            
+            <!-- Hero Welcome Banner -->
+            <div id="vaultHeroBanner" class="p-10 sm:p-16 mb-12 animate-enter opacity-0 transition-all duration-700 bg-[color:var(--onyx)] text-white relative overflow-hidden" style="border-left: 4px solid var(--champagne);">
+                <!-- Subtle background pattern or noise could go here -->
+                <div class="relative z-10 max-w-3xl">
+                    <h1 class="text-4xl sm:text-5xl font-serif mb-6 leading-tight" id="vaultHeroTitle">Welcome, Client.</h1>
+                    <p class="text-sm font-light text-gray-300 leading-loose max-w-2xl mb-12 tracking-wide" id="vaultHeroSub">Your bespoke architectural survey is ready for review. We engineer every element meticulously to ensure a flawless realization of your new living space.</p>
+                    
+                    <div id="apptBanner" class="inline-flex items-center gap-6 border border-white/20 p-6 bg-white/5 backdrop-blur-sm">
+                        <div class="text-[color:var(--champagne)]">
+                            <span class="material-icons-round text-3xl font-light">calendar_today</span>
+                        </div>
+                        <div>
+                            <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 mb-1">Next Consultation</p>
+                            <p class="text-lg font-serif tracking-wide" id="vaultApptDate">Awaiting Scheduling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                
+                <!-- LEFT COLUMN: The Details (Wider in luxury layouts) -->
+                <div class="lg:col-span-8 space-y-12">
+                    
+                    <!-- 0. Your Design (3D Renders) — the visualisations your
+                         designer uploads via Project Gatekeeper live here.
+                         This section only appears once at least one render
+                         has been pushed. -->
+                    <div class="glass-surface p-10 sm:p-12 animate-enter opacity-0 hidden" style="animation-delay: 0.05s;" id="v-design-section">
+                        <h2 class="text-3xl font-serif text-[color:var(--charcoal)] mb-4">Your Design</h2>
+                        <div class="h-[1px] w-12 bg-[color:var(--champagne)] mb-8"></div>
+                        <p class="text-xs text-gray-500 font-light leading-relaxed mb-10 tracking-wide">Bespoke visualisations of your new living space, crafted around your exact specification.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6" id="v-design-renders">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- 1. Interactive Survey Details -->
+                    <div class="glass-surface p-10 sm:p-12 animate-enter opacity-0" style="animation-delay: 0.1s;">
+                        <h2 class="text-3xl font-serif text-[color:var(--charcoal)] mb-4">Structural Diagnostics</h2>
+                        <div class="h-[1px] w-12 bg-[color:var(--champagne)] mb-8"></div>
+                        <p class="text-xs text-gray-500 font-light leading-relaxed mb-10 tracking-wide">A transparent breakdown of the engineering and design choices dictating the construction of your property extension.</p>
+                        
+                        <div class="space-y-4">
+                            <!-- Accordion 1: Design -->
+                            <div class="accordion-item">
+                                <button class="accordion-header" onclick="toggleAccordion(this)">
+                                    <span class="accordion-title">Architectural Vision</span>
+                                    <span class="material-icons-round accordion-icon">add</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 pb-6">
+                                        <div class="data-card">
+                                            <p class="data-card-title">Footprint & Scale</p>
+                                            <p class="data-card-value" id="v-buildType">-</p>
+                                            <p class="data-card-explain">Engineered to maximize your property's potential while respecting boundary limits and maximizing natural light flow.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Roofing Architecture</p>
+                                            <p class="data-card-value" id="v-roof">-</p>
+                                            <p class="data-card-explain">Calculated to provide optimal thermal efficiency and a striking internal vaulted aesthetic.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Exterior Finish</p>
+                                            <p class="data-card-value" id="v-frameExt">-</p>
+                                            <p class="data-card-explain">Selected to integrate seamlessly with your existing masonry or provide a bold, contemporary contrast.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Interior Palette</p>
+                                            <p class="data-card-value" id="v-frameInt">-</p>
+                                            <p class="data-card-explain">Dictates the ambient feel of the room, typically neutral to amplify natural illumination.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Accordion 2: Engineering -->
+                            <div class="accordion-item">
+                                <button class="accordion-header" onclick="toggleAccordion(this)">
+                                    <span class="accordion-title">Foundations & Engineering</span>
+                                    <span class="material-icons-round accordion-icon">add</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 pb-6">
+                                        <div class="data-card">
+                                            <p class="data-card-title">Sub-Structure Strategy</p>
+                                            <p class="data-card-value" id="v-baseType">-</p>
+                                            <p class="data-card-explain">Dictated by local geology assessments to ensure absolute structural permanence.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Moisture Defense (DPC)</p>
+                                            <p class="data-card-value" id="v-dpc">-</p>
+                                            <p class="data-card-explain">Precise damp-proof course measurements to eliminate environmental moisture bridging.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Sub-Floor Aeration</p>
+                                            <p class="data-card-value" id="v-airBricks">-</p>
+                                            <p class="data-card-explain">Preserving the breathability of your primary residence's existing sub-floor architecture.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Eaves Clearances</p>
+                                            <p class="data-card-value" id="v-fascia">-</p>
+                                            <p class="data-card-explain">Calculated tolerances to respect existing first-floor fenestration.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Accordion 3: Logistics -->
+                            <div class="accordion-item">
+                                <button class="accordion-header" onclick="toggleAccordion(this)">
+                                    <span class="accordion-title">Site Logistics & Preparation</span>
+                                    <span class="material-icons-round accordion-icon">add</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 pb-6">
+                                        <div class="data-card">
+                                            <p class="data-card-title">Transit Route</p>
+                                            <p class="data-card-value" id="v-access">-</p>
+                                            <p class="data-card-explain">Pre-planned pathways for the secure and non-disruptive transport of structural materials.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Groundworks & Drainage</p>
+                                            <p class="data-card-value" id="v-drainage">-</p>
+                                            <p class="data-card-explain">Mapping of subterranean utilities to facilitate safe modifications or rerouting.</p>
+                                        </div>
+                                        <div class="data-card sm:col-span-2">
+                                            <p class="data-card-title">Structural Obstructions</p>
+                                            <p class="data-card-value" id="v-obstacles">-</p>
+                                            <p class="data-card-explain">Identification of existing flues or vents requiring specialized architectural workarounds.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Accordion 4: Compliance -->
+                            <div class="accordion-item">
+                                <button class="accordion-header" onclick="toggleAccordion(this)">
+                                    <span class="accordion-title">Regulatory Compliance</span>
+                                    <span class="material-icons-round accordion-icon">add</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 pb-6">
+                                        <div class="data-card">
+                                            <p class="data-card-title">Building Control Status</p>
+                                            <p class="data-card-value" id="v-regs">-</p>
+                                            <p class="data-card-explain">Fully managed liaison with inspectors to secure all mandatory legal certifications.</p>
+                                        </div>
+                                        <div class="data-card">
+                                            <p class="data-card-title">Planning Authority</p>
+                                            <p class="data-card-value" id="v-planning">-</p>
+                                            <p class="data-card-explain">Determination and execution of Permitted Development or formal application requirements.</p>
+                                        </div>
+                                        <div class="data-card sm:col-span-2">
+                                            <p class="data-card-title">Thermal Validation (SAP)</p>
+                                            <p class="data-card-value" id="v-sap">-</p>
+                                            <p class="data-card-explain">Complex energy calculations proving the ultimate thermal efficiency of your new space.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Interactive Photo Gallery -->
+                    <div class="glass-surface p-10 sm:p-12 animate-enter opacity-0" style="animation-delay: 0.2s;">
+                        <h2 class="text-3xl font-serif text-[color:var(--charcoal)] mb-4">Site Cartography</h2>
+                        <div class="h-[1px] w-12 bg-[color:var(--champagne)] mb-8"></div>
+                        <p class="text-xs text-gray-500 font-light leading-relaxed mb-10 tracking-wide">A comprehensive visual index of your property, ensuring absolute precision before fabrication commences.</p>
+                        
+                        <div class="gallery-grid" id="v-gallery">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- 3. Pamphlet Downloads -->
+                    <div class="glass-surface p-10 sm:p-12 animate-enter opacity-0" style="animation-delay: 0.3s;">
+                        <h2 class="text-xl font-serif text-[color:var(--charcoal)] mb-8 tracking-wide">Corporate Literature</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6" id="v-brochures">
+                            <a href="./assets/shared/who-we-are.jpg" target="_blank" class="secondary-btn justify-between">
+                                <span>The Yorkshire Profile</span> <span class="material-icons-round text-[color:var(--champagne)]">arrow_forward</span>
+                            </a>
+                            <a href="./assets/shared/journey.jpg" target="_blank" class="secondary-btn justify-between">
+                                <span>Client Journey</span> <span class="material-icons-round text-[color:var(--champagne)]">arrow_forward</span>
+                            </a>
+                            <a href="./assets/shared/protecting-home.jpg" target="_blank" class="secondary-btn justify-between">
+                                <span>Our Guarantees</span> <span class="material-icons-round text-[color:var(--champagne)]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: Quote & Contact (Mobile Hero Shift Applied) -->
+                <div class="lg:col-span-4 space-y-12 order-first lg:order-none">
+                    
+                    <!-- 1. The Black Card Quote Reveal -->
+                    <div class="black-card p-10 sm:p-12 animate-enter opacity-0 shadow-2xl" style="animation-delay: 0.4s;" id="quoteContainer">
+                        <h2 class="text-2xl font-serif text-white mb-2">Financial Schedule</h2>
+                        <div class="h-[1px] w-12 bg-[color:var(--champagne)] mb-10"></div>
+                        
+                        <!-- Blurred content until unlocked -->
+                        <div class="quote-blur space-y-10">
+                            <div>
+                                <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-3">Total Investment</p>
+                                <p class="text-5xl font-serif text-[color:var(--champagne)] tracking-tight" id="v-quoteTotal">£0.00</p>
+                                <p class="text-[10px] text-gray-500 mt-3 font-light tracking-widest uppercase">Inclusive of VAT & Installation</p>
+                            </div>
+                            
+                            <div class="pt-8 border-t border-white/10">
+                                <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-2">Required Deposit</p>
+                                <p class="text-2xl font-serif text-white" id="v-quoteDeposit">£0.00</p>
+                            </div>
+
+                            <!-- "Ready to Proceed" — deliberately NOT a
+                                 signature or contract. Your existing
+                                 contract-signing and payment processes
+                                 handle that; this just lets a customer
+                                 signal readiness and notifies the
+                                 designer to reach out. -->
+                            <div class="pt-8 border-t border-white/10" id="v-signature-section">
+                                <div id="v-signature-form">
+                                    <p class="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-4">Ready to Proceed?</p>
+                                    <button id="v-btn-sign" class="luxury-btn gold-accent w-full">I'm Ready — Notify My Designer</button>
+                                    <p class="text-[9px] text-gray-500 mt-4 font-light leading-relaxed">Your designer will be in touch to arrange next steps, including your contract and payment.</p>
+                                </div>
+                                <div id="v-signature-confirmed" class="hidden text-center">
+                                    <span class="material-icons-round text-4xl text-[color:var(--champagne)] mb-3">check_circle</span>
+                                    <p class="text-white font-serif text-lg">Thank you — your designer has been notified</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- The Unlock Button Overlay -->
+                        <div class="reveal-overlay flex-col text-center p-8">
+                            <span class="material-icons-round text-5xl text-[color:var(--champagne)] mb-6 font-light">lock_outline</span>
+                            <h3 class="text-xl font-serif text-white mb-2">Proposal Finalized</h3>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-10">Confidential Document</p>
+                            <button onclick="revealQuote()" class="luxury-btn gold-accent w-full">Reveal Investment</button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Talk to Designer Card -->
+                    <div class="glass-surface p-10 sm:p-12 animate-enter opacity-0" style="animation-delay: 0.5s;">
+                        <h2 class="text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] mb-8">Lead Design Consultant</h2>
+                        
+                        <div class="mb-8">
+                            <div class="w-24 h-24 overflow-hidden mb-6 border border-[color:var(--border-delicate)]">
+                                <img id="v-designerImg" src="https://via.placeholder.com/150" class="w-full h-full object-cover filter grayscale transition hover:grayscale-0">
+                            </div>
+                            <h3 class="text-2xl font-serif text-[color:var(--charcoal)] mb-1" id="v-designerName">Thomas Oldroyd</h3>
+                            <p class="text-[10px] text-[color:var(--champagne)] font-bold uppercase tracking-[0.1em]" id="v-designerRole">New Living Space Designer</p>
+                        </div>
+                        
+                        <p class="text-xs text-gray-500 mb-10 font-light leading-loose italic" id="v-designerBio">"Here to help you bring your vision to life. Reach out directly if you need to adjust your design or discuss the schedule."</p>
+                        
+                        <!-- Dynamic Mailto Link -->
+                        <a href="#" id="v-designerEmailBtn" class="luxury-btn w-full">
+                            Contact Consultant
+                        </a>
+                    </div>
+
+                    <!-- 3. Live Chat — direct line to the designer -->
+                    <div class="glass-surface p-10 sm:p-12 animate-enter opacity-0" style="animation-delay: 0.6s;">
+                        <h2 class="text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] mb-6">Message Your Designer</h2>
+                        <div id="v-chat-messages" class="space-y-3 mb-6 max-h-80 overflow-y-auto pr-2" style="scrollbar-width: thin;">
+                            <p class="text-xs text-gray-400 italic">No messages yet — say hello.</p>
+                        </div>
+                        <form id="v-chat-form" class="flex gap-2">
+                            <input type="text" id="v-chat-input" placeholder="Type a message..." class="luxury-input flex-1" maxlength="1000" autocomplete="off">
+                            <button type="submit" class="luxury-btn px-6" style="width:auto;">
+                                <span class="material-icons-round text-lg">send</span>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Fullscreen Image Lightbox -->
+    <div id="imageModal" class="fixed inset-0 bg-[color:var(--onyx)] z-[10000] hidden items-center justify-center p-8 opacity-0">
+        <button onclick="closeModal()" class="absolute top-8 right-8 text-white hover:text-[color:var(--champagne)] transition">
+            <span class="material-icons-round text-4xl font-light">close</span>
+        </button>
+        <img id="modalImage" src="" class="max-w-full max-h-[85vh] object-contain shadow-2xl border border-white/10">
+    </div>
+
+    <script type="module">
+        import { functions, httpsCallable, db, doc, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp } from './js/core-firebase.js';
+
+        // ==========================================
+        // GLOBAL VAULT STATE
+        // ==========================================
+        // NOTE ON SECURITY: this page never reads surveys/{id} directly.
+        // All data (including price) comes back from the verifyVaultPin
+        // Cloud Function, which checks the PIN server-side and only
+        // includes price fields when vaultAccessLevel === 'full_access'.
+        // That means an incorrect PIN, or a PIN entered before the
+        // designer has flipped the switch, never puts the price on the
+        // wire at all — there's nothing to find in dev tools.
+        let activeProjectId = null;
+        let enteredPinCache = null; // kept in memory only, to silently
+                                     // re-fetch if staff flips the switch
+                                     // live while the vault is already open
+        let surveyData = null;
+        let telemetryInterval = null;
+
+        const callVerifyPin = httpsCallable(functions, 'verifyVaultPin');
+        const callSyncTelemetry = httpsCallable(functions, 'syncVaultTelemetry');
+        const callAddUpload = httpsCallable(functions, 'addClientUpload');
+        const callGetSystemRenderData = httpsCallable(functions, 'getSystemRenderData');
+        const callConfirmReady = httpsCallable(functions, 'confirmReadyToProceed');
+
+        let metrics = {
+            sessionStart: Date.now(),
+            totalSecondsActive: 0,
+            hasRevealedQuote: false,
+            accordionsOpened: 0,
+            photosViewed: 0,
+            renderEngagementSeconds: {} // { "0": 12.4, "1": 47.1, ... } — which design concept gets the most attention
+        };
+        let renderObserver = null;
+        const renderVisibleSince = {};
+
+        // ==========================================
+        // 1. PIN & AUTH LOGIC
+        // ==========================================
+        window.moveToNext = (current, nextFieldID, prevFieldID) => {
+            if (current.value.length >= 1) {
+                if (nextFieldID) document.getElementById(nextFieldID).focus();
+            } else if (current.value.length === 0 && event.key === "Backspace") {
+                if (prevFieldID) document.getElementById(prevFieldID).focus();
+            }
+        };
+
+        let chatListenerStarted = false;
+
+        async function unlockWithPin(pin, { silent } = {}) {
+            const btn = document.getElementById('btnUnlockVault');
+            if (!silent) btn.innerHTML = `<span class="material-icons-round animate-spin font-light mr-2">sync</span> Authenticating`;
+
+            try {
+                const result = await callVerifyPin({ id: activeProjectId, pin });
+                surveyData = result.data;
+                enteredPinCache = pin;
+
+                if (!silent) {
+                    unlockVaultUI();
+                    startHeartbeatEngine();
+                }
+                populateVaultData();
+                if (!chatListenerStarted) {
+                    startChatListener();
+                    chatListenerStarted = true;
+                }
+                return true;
+            } catch (err) {
+                if (!silent) {
+                    console.error(err);
+                    const errorEl = document.getElementById('pinError');
+                    errorEl.innerText = err.message && err.code?.includes('resource-exhausted')
+                        ? err.message
+                        : 'Incorrect Access Key.';
+                    errorEl.classList.remove('opacity-0');
+                    btn.innerHTML = `Access Dossier`;
+                    ['pin1', 'pin2', 'pin3', 'pin4'].forEach(id => document.getElementById(id).value = '');
+                    document.getElementById('pin1').focus();
+                }
+                return false;
+            }
+        }
+
+        document.getElementById('btnUnlockVault').addEventListener('click', async () => {
+            const p1 = document.getElementById('pin1').value;
+            const p2 = document.getElementById('pin2').value;
+            const p3 = document.getElementById('pin3').value;
+            const p4 = document.getElementById('pin4').value;
+            const enteredPin = p1 + p2 + p3 + p4;
+
+            if (enteredPin.length !== 4) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            activeProjectId = urlParams.get('id');
+
+            if (!activeProjectId) {
+                alert("Invalid Access Link.");
+                return;
+            }
+
+            await unlockWithPin(enteredPin);
+        });
+
+        const unlockVaultUI = () => {
+            const gate = document.getElementById('clientAuthGate');
+            const app = document.getElementById('vaultApp');
+
+            gate.style.opacity = '0';
+            setTimeout(() => {
+                gate.style.display = 'none';
+                app.classList.remove('hidden');
+
+                const elements = document.querySelectorAll('.animate-enter');
+                elements.forEach(el => el.style.animationPlayState = 'running');
+            }, 700);
+        };
+
+        // ==========================================
+        // 1b. SYSTEM RENDER MODE (server-side PDF pipeline only)
+        // ==========================================
+        // When Puppeteer (compilePDF) opens this page, it appends a
+        // short-lived systemToken instead of a PIN. This bypasses the
+        // customer PIN gate entirely and fetches the FULL record
+        // (including price) so the generated PDF always shows the
+        // complete dossier, regardless of the current vaultAccessLevel.
+        async function trySystemRender() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const systemToken = urlParams.get('systemToken');
+            activeProjectId = urlParams.get('id');
+            if (!systemToken || !activeProjectId) return false;
+
+            try {
+                const result = await callGetSystemRenderData({ id: activeProjectId, token: systemToken });
+                surveyData = result.data;
+                surveyData.vaultAccessLevel = 'full_access'; // PDF always shows full detail
+                unlockVaultUI();
+                populateVaultData();
+                return true;
+            } catch (err) {
+                console.error('System render failed', err);
+                return false;
+            }
+        }
+
+        // ==========================================
+        // 2. DATA POPULATION LOGIC
+        // ==========================================
+        const populateVaultData = () => {
+            const profile = surveyData.customerProfile || {};
+            const specs = surveyData.projectSpecs || {};
+            const media = surveyData.media || {};
+            const accessLevel = surveyData.vaultAccessLevel || 'survey_only';
+            const hasPrice = accessLevel === 'full_access' &&
+                surveyData.uDesignData?.totalPrice != null;
+            const designer = surveyData.designerProfile || {};
+            const clientNameDisplay = profile.leadName || 'Client';
+
+            // Profile & Banner Logic
+            const heroTitle = document.getElementById('vaultHeroTitle');
+            const heroSub = document.getElementById('vaultHeroSub');
+
+            if (accessLevel === 'design_tease' || hasPrice) {
+                heroTitle.innerHTML = `Proposal Finalized, ${clientNameDisplay}.`;
+                heroSub.innerText = "We have structured your investment schedule. Reveal your official quotation below prior to reviewing the technical engineering diagnostics.";
+            } else {
+                heroTitle.innerHTML = `Welcome, ${clientNameDisplay}.`;
+                heroSub.innerText = "Your bespoke architectural survey is ready for review. We engineer every element meticulously to ensure a flawless realization of your new living space.";
+            }
+
+            if (profile.revisitDate) {
+                const parts = profile.revisitDate.split('-');
+                const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                document.getElementById('vaultApptDate').innerText = d.toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' });
+            }
+
+            // Design
+            document.getElementById('v-buildType').innerText = specs.buildType || 'TBC';
+            document.getElementById('v-size').innerText = specs.proposedSize ? `${specs.proposedSize}mm` : 'Surveying';
+            const pitch = specs.roofPitch ? ` (${specs.roofPitch}° Pitch)` : '';
+            document.getElementById('v-roof').innerText = (specs.roofStyle || 'TBC') + pitch;
+            document.getElementById('v-frameExt').innerText = specs.frameColour || 'TBC';
+            document.getElementById('v-frameInt').innerText = specs.internalFrameColour || 'TBC';
+
+            // Engineering
+            document.getElementById('v-baseType').innerText = specs.baseType || 'TBC';
+            document.getElementById('v-dpc').innerText = specs.dpcDepth ? `${specs.dpcDepth}mm` : 'N/A';
+            document.getElementById('v-airBricks').innerText = specs.airBricks || 'N/A';
+            document.getElementById('v-fascia').innerText = specs.fasciaHeight ? `${specs.fasciaHeight}mm` : 'N/A';
+
+            // Logistics
+            document.getElementById('v-access').innerText = specs.accessDifficult || 'Unrestricted';
+            document.getElementById('v-drainage').innerText = specs.drainage || 'No Action Required';
+            document.getElementById('v-obstacles').innerText = specs.wallObstacles || 'Clear / None';
+
+            // Compliance
+            document.getElementById('v-regs').innerText = specs.buildingRegs || 'Determining Requirements...';
+            document.getElementById('v-planning').innerText = specs.planningPerms || 'Determining Status...';
+            document.getElementById('v-sap').innerText = specs.sapCalcs === "Yes" ? "Required & Managed" : "Exempt";
+
+            // Quote Data — comes from uDesignData now (this is the field
+            // your dashboard/admin-gatekeeper/quotes.html actually write
+            // to; the vault previously read a different, disconnected
+            // field and "flick the switch" never reached the customer).
+            const revealOverlay = document.querySelector('.reveal-overlay');
+            const revealBtn = revealOverlay?.querySelector('button');
+            if (hasPrice) {
+                document.getElementById('v-quoteTotal').innerText = surveyData.uDesignData.totalPrice || '£0.00';
+                document.getElementById('v-quoteDeposit').innerText = surveyData.uDesignData.deposit || '£0.00';
+                if (revealOverlay) {
+                    revealOverlay.querySelector('h3').innerText = 'Proposal Finalized';
+                    revealOverlay.querySelector('p').innerText = 'Confidential Document';
+                    if (revealBtn) revealBtn.style.display = '';
+                }
+
+                // "Ready to proceed" state — a soft signal, not a signature
+                const sigForm = document.getElementById('v-signature-form');
+                const sigConfirmed = document.getElementById('v-signature-confirmed');
+                if (surveyData.readyToProceed) {
+                    sigForm.classList.add('hidden');
+                    sigConfirmed.classList.remove('hidden');
+                } else {
+                    sigForm.classList.remove('hidden');
+                    sigConfirmed.classList.add('hidden');
+                }
+            } else {
+                document.getElementById('v-quoteTotal').innerText = 'Pending';
+                document.getElementById('v-quoteDeposit').innerText = 'Pending';
+                if (revealOverlay) {
+                    revealOverlay.querySelector('h3').innerText = 'Calculating Costs';
+                    revealOverlay.querySelector('p').innerText = 'Your designer will unlock this at your next appointment';
+                    if (revealBtn) revealBtn.style.display = 'none';
+                }
+            }
+
+            // Designer Profile & Dynamic Email
+            document.getElementById('v-designerName').innerText = designer.name || 'Yorkshire Windows';
+            document.getElementById('v-designerRole').innerText = designer.role || 'Design Consultant';
+            if (designer.bio) document.getElementById('v-designerBio').innerText = `"${designer.bio}"`;
+            if (designer.headshot) document.getElementById('v-designerImg').src = designer.headshot;
+
+            const designerEmail = surveyData.designerEmail || 'sales@yorkshirewindows.com';
+            document.getElementById('v-designerEmailBtn').href = `mailto:${designerEmail}`;
+
+            // Gallery
+            const gallery = document.getElementById('v-gallery');
+            let gHtml = '';
+
+            const addImage = (srcArray, title, desc) => {
+                let actualSrc = null;
+                if (Array.isArray(srcArray) && srcArray.length > 0) actualSrc = srcArray[0];
+                else if (typeof srcArray === 'string') actualSrc = srcArray;
+
+                if (actualSrc) {
+                    gHtml += `
+                        <div class="gallery-item" onclick="openModal('${actualSrc}')">
+                            <img src="${actualSrc}" alt="${title}">
+                            <div class="gallery-overlay">
+                                <h4>${title}</h4>
+                                <p>${desc}</p>
+                            </div>
+                        </div>`;
+                }
+            };
+
+            addImage(media.sketch, 'Laser Scope', 'Digital architectural mapping.');
+            addImage(media.front, 'Front Elevation', 'Used to match existing property styling.');
+            addImage(media.side, 'Side Elevation', 'Mapped for boundary positioning.');
+            addImage(media.rear, 'Rear Elevation', 'The primary attachment zone.');
+            addImage(media.access, 'Access Route', 'Ensuring safe material transport.');
+            addImage(media.drainage, 'Drainage Layout', 'Identifying pipes for safe rerouting.');
+            addImage(media.trees, 'Tree/Root Assessment', 'To determine required foundation depths.');
+            addImage(media.brick, 'Brick Match Profile', 'To source a seamless masonry blend.');
+            addImage(media.misc, 'Misc Documentation', 'Additional site-specific details.');
+
+            if (!gHtml) gHtml = `<p class="text-xs text-gray-400 p-4 font-light italic col-span-full">Visual mapping pending synchronization.</p>`;
+            gallery.innerHTML = gHtml;
+
+            // Your Design — 3D renders. This is the highest-value visual
+            // content in the whole vault; it previously had no display
+            // surface at all despite being uploaded and sent to the
+            // browser. Also wires up per-render view-time tracking so the
+            // designer can see which specific design the customer is most
+            // drawn to (see startRenderEngagementTracking below).
+            const renders = surveyData.uDesignData?.renders || [];
+            const designSection = document.getElementById('v-design-section');
+            const designGrid = document.getElementById('v-design-renders');
+            if (renders.length > 0) {
+                designSection.classList.remove('hidden');
+                designGrid.innerHTML = renders.map((url, i) => `
+                    <div class="gallery-item" data-render-index="${i}" onclick="openModal('${url}')" style="aspect-ratio: 4/3;">
+                        <img src="${url}" alt="Design render ${i + 1}">
+                        <div class="gallery-overlay">
+                            <h4>Design Concept ${i + 1}</h4>
+                            <p>Tap to view full screen</p>
+                        </div>
+                    </div>
+                `).join('');
+                startRenderEngagementTracking();
+            } else {
+                designSection.classList.add('hidden');
+            }
+        };
+
+        // ==========================================
+        // 3. UI INTERACTIONS
+        // ==========================================
+        window.toggleAccordion = (button) => {
+            metrics.accordionsOpened++;
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('.accordion-icon');
+            const isOpen = content.classList.contains('open');
+
+            document.querySelectorAll('.accordion-content').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.accordion-item').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.accordion-icon').forEach(el => el.innerText = 'add');
+
+            if (!isOpen) {
+                content.classList.add('open');
+                button.parentElement.classList.add('open');
+                icon.innerText = 'remove';
+            }
+        };
+
+        window.revealQuote = () => {
+            const container = document.getElementById('quoteContainer');
+            container.classList.add('quote-unlocked');
+            metrics.hasRevealedQuote = true;
+            syncTelemetry(true);
+        };
+
+        document.getElementById('v-btn-sign')?.addEventListener('click', async () => {
+            const btn = document.getElementById('v-btn-sign');
+            if (!enteredPinCache || !activeProjectId) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-icons-round animate-spin">sync</span> Sending...`;
+
+            try {
+                await callConfirmReady({ id: activeProjectId, pin: enteredPinCache });
+                await unlockWithPin(enteredPinCache, { silent: true });
+            } catch (err) {
+                console.error(err);
+                alert(err.message || "Something went wrong — please try again.");
+                btn.disabled = false;
+                btn.innerHTML = "I'm Ready — Notify My Designer";
+            }
+        });
+
+        // Lightbox
+        window.openModal = (src) => {
+            metrics.photosViewed++;
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            img.src = src;
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        };
+
+        // Tracks how long each design render is actually in view (not just
+        // "was it in the gallery") — this is what lets a designer walk
+        // into the second appointment already knowing which concept the
+        // customer keeps coming back to.
+        function startRenderEngagementTracking() {
+            if (renderObserver) renderObserver.disconnect();
+            renderObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    const idx = entry.target.dataset.renderIndex;
+                    if (entry.isIntersecting) {
+                        renderVisibleSince[idx] = Date.now();
+                    } else if (renderVisibleSince[idx]) {
+                        const seconds = (Date.now() - renderVisibleSince[idx]) / 1000;
+                        metrics.renderEngagementSeconds[idx] = (metrics.renderEngagementSeconds[idx] || 0) + seconds;
+                        delete renderVisibleSince[idx];
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('#v-design-renders .gallery-item').forEach((el) => renderObserver.observe(el));
+        }
+
+        function flushRenderEngagement() {
+            const now = Date.now();
+            Object.keys(renderVisibleSince).forEach((idx) => {
+                const seconds = (now - renderVisibleSince[idx]) / 1000;
+                metrics.renderEngagementSeconds[idx] = (metrics.renderEngagementSeconds[idx] || 0) + seconds;
+                renderVisibleSince[idx] = now;
+            });
+        }
+
+        window.closeModal = () => {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }, 300);
+        };
+
+        // ==========================================
+        // LIVE CHAT — direct line to the designer
+        // ==========================================
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function startChatListener() {
+            if (!activeProjectId) return;
+            const messagesRef = collection(db, "surveys", activeProjectId, "messages");
+            const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+            onSnapshot(q, (snap) => {
+                const container = document.getElementById('v-chat-messages');
+                if (snap.empty) {
+                    container.innerHTML = `<p class="text-xs text-gray-400 italic">No messages yet — say hello.</p>`;
+                    return;
+                }
+                container.innerHTML = snap.docs.map((d) => {
+                    const m = d.data();
+                    const isClient = m.role === 'Client';
+                    const time = m.timestamp?.toDate ? m.timestamp.toDate().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
+                    return `
+                        <div style="display:flex; ${isClient ? 'justify-content:flex-end;' : 'justify-content:flex-start;'}">
+                            <div style="max-width: 80%; padding: 10px 14px; border-radius: 10px; ${isClient ? 'background: var(--onyx); color: white;' : 'background: #f0ede8; color: var(--charcoal);'}">
+                                ${!isClient ? `<p style="font-size:9px; text-transform:uppercase; letter-spacing:0.05em; opacity:0.6; margin:0 0 2px 0;">${escapeHtml(m.sender || 'Designer')}</p>` : ''}
+                                <p style="font-size: 13px; margin:0; line-height:1.5;">${escapeHtml(m.text || '')}</p>
+                                <p style="font-size:9px; opacity:0.5; margin:4px 0 0 0; text-align:right;">${time}</p>
+                            </div>
+                        </div>`;
+                }).join('');
+                container.scrollTop = container.scrollHeight;
+            }, (err) => {
+                console.error("Chat listener failed:", err);
+            });
+        }
+
+        document.getElementById('v-chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('v-chat-input');
+            const text = input.value.trim();
+            if (!text || !activeProjectId) return;
+
+            input.value = '';
+            input.disabled = true;
+            try {
+                await addDoc(collection(db, "surveys", activeProjectId, "messages"), {
+                    sender: surveyData?.customerProfile?.leadName || 'Client',
+                    role: 'Client',
+                    text: text,
+                    timestamp: serverTimestamp(),
+                });
+                syncTelemetry(true); // a message is a strong intent signal, worth an immediate sync
+            } catch (err) {
+                console.error("Failed to send message:", err);
+                input.value = text; // give it back so they don't lose what they typed
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        });
+
+        // ==========================================
+        // 4. HEARTBEAT ENGINE
+        // ==========================================
+        const startHeartbeatEngine = () => {
+            syncTelemetry();
+            telemetryInterval = setInterval(() => {
+                metrics.totalSecondsActive = Math.floor((Date.now() - metrics.sessionStart) / 1000);
+                syncTelemetry();
+            }, 15000);
+        };
+
+        const syncTelemetry = async (urgent = false) => {
+            if (!activeProjectId) return;
+            flushRenderEngagement();
+            try {
+                await callSyncTelemetry({
+                    id: activeProjectId,
+                    seconds: metrics.totalSecondsActive,
+                    hasRevealedQuote: metrics.hasRevealedQuote,
+                    accordionsOpened: metrics.accordionsOpened,
+                    photosViewed: metrics.photosViewed,
+                    renderEngagementSeconds: metrics.renderEngagementSeconds,
+                });
+                if (urgent) console.log("High-intent telemetry synced immediately.");
+            } catch (err) {
+                console.warn("Heartbeat sync failed temporarily.");
+            }
+        };
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === 'hidden') {
+                clearInterval(telemetryInterval);
+                syncTelemetry(true);
+            } else if (document.visibilityState === 'visible' && surveyData) {
+                metrics.sessionStart = Date.now() - (metrics.totalSecondsActive * 1000);
+                startHeartbeatEngine();
+            }
+        });
+
+        // ==========================================
+        // 5. LIVE "FLICK THE SWITCH" — the second-appointment moment
+        // ==========================================
+        // vaultStatus/{id} is a public, price-free mirror kept in sync by
+        // the mirrorVaultStatus Cloud Function. Subscribing to it lets the
+        // vault notice the instant a designer flips vaultAccessLevel to
+        // full_access — without ever holding price data before that
+        // happens. Once it flips, we silently re-run the same PIN the
+        // customer already entered to fetch the now-authorized price.
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
+            if (!idFromUrl) return;
+
+            onSnapshot(doc(db, "vaultStatus", idFromUrl), (snap) => {
+                if (!snap.exists()) return;
+                const status = snap.data();
+                if (
+                    enteredPinCache &&
+                    status.vaultAccessLevel === 'full_access' &&
+                    surveyData?.vaultAccessLevel !== 'full_access'
+                ) {
+                    unlockWithPin(enteredPinCache, { silent: true });
+                }
+            });
+        });
+
+        // Kick off: system render mode for the PDF pipeline, otherwise
+        // show the normal PIN gate for the customer.
+        trySystemRender();
+
+    </script>
+</body>
+</html>

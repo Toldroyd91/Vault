@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Site Intelligence | COHI Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .badge { font-size: 9px; padding: 3px 6px; border-radius: 4px; border: 1px solid #30363d; text-transform: uppercase; font-weight: bold; }
+        .badge-verified { background: rgba(35, 134, 54, 0.1); color: #238636; border-color: #238636; }
+        #mobileNavOverlay { display: none; }
+        #mobileNavOverlay.active { display: block; }
+    </style>
+</head>
+<body class="bg-[#050505] text-white overflow-hidden flex h-screen w-full">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between bg-[#161b22] p-4 border-b border-[#30363d] absolute top-0 w-full z-40 shadow-md">
+        <h2 class="text-white font-black uppercase text-lg m-0">COHI<span class="text-[#0dcaf0]">PRO</span></h2>
+        <button id="mobileMenuBtn" class="text-white text-2xl p-2">☰</button>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileNavOverlay" class="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- GLOBAL SIDEBAR NAVIGATION -->
+    <nav id="appSidebar" class="w-64 md:w-72 bg-[#090d13] border-r border-[#30363d] h-full flex flex-col fixed md:relative z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+        <div class="p-6 border-b border-[#30363d] flex justify-between items-center bg-[#05080c]">
+            <h2 class="text-white font-black uppercase text-xl m-0 tracking-widest">COHI<span class="text-[#0dcaf0]">PRO</span></h2>
+            <button id="closeMenuBtn" class="md:hidden text-gray-400 hover:text-white text-xl">✕</button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-4">
+            <a href="index.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">📊</span> Pipeline
+            </a>
+            <a href="property-intel.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-[#0dcaf0] bg-[#0dcaf0]/10 border border-[#0dcaf0]/30 shadow-[inset_4px_0_0_#0dcaf0] transition">
+                <span class="text-lg">🌍</span> Site Intel
+            </a>
+            <a href="survey.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">📝</span> Survey Engine
+            </a>
+            <a href="quotes.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">💷</span> Quote Scraper
+            </a>
+            <a href="admin-gatekeeper.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">🔒</span> Gatekeeper
+            </a>
+            <a href="pdf-compiler.html" class="flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400 hover:bg-white/5 hover:text-white transition">
+                <span class="text-lg">🗂️</span> Dossiers
+            </a>
+        </div>
+    </nav>
+
+    <!-- MAIN SCROLLABLE WORKSPACE -->
+    <main class="flex-1 h-full overflow-y-auto p-4 md:p-8 relative pt-20 md:pt-8 bg-[#0d1117]">
+        
+        <div class="max-w-6xl mx-auto">
+            <header class="border-b border-[#30363d] pb-6 mb-8">
+                <h1 class="text-2xl font-black text-white uppercase tracking-widest m-0">Architectural Site Intelligence</h1>
+                <p class="text-xs text-gray-400 uppercase tracking-widest mt-2">Pre-Consultation Remote Survey Engine</p>
+            </header>
+
+            <div class="flex flex-col md:flex-row gap-4 bg-[#161b22] p-6 rounded-xl border border-[#30363d] mb-8">
+                <div class="flex-1">
+                    <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">House Name / Number</label>
+                    <input type="text" id="houseNum" placeholder="e.g. 14" class="w-full bg-[#090d13] border border-[#30363d] text-white p-3 rounded focus:border-[#0dcaf0] outline-none">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">UK Postcode</label>
+                    <input type="text" id="postcode" placeholder="e.g. S70 0PN" class="w-full bg-[#090d13] border border-[#30363d] text-white p-3 rounded uppercase focus:border-[#0dcaf0] outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="runIntelScrape()" class="w-full md:w-auto bg-[#0dcaf0] text-black px-8 py-3 rounded font-black uppercase tracking-widest hover:bg-cyan-400 transition shadow-[0_4px_15px_rgba(13,202,240,0.3)]">Extract Intel</button>
+                </div>
+            </div>
+
+            <div id="loader" class="hidden text-[#0dcaf0] font-bold text-sm uppercase tracking-widest mb-6 animate-pulse">Querying UK Government & Ordnance Survey data sources...</div>
+
+            <div class="hidden grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="resultsGrid">
+                
+                <!-- Architecture -->
+                <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 relative overflow-hidden lg:col-span-2 shadow-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-[#0dcaf0]"></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xs uppercase text-[#0dcaf0] font-bold tracking-widest m-0">Existing Architecture <span class="badge badge-verified ml-2 bg-gray-900">UK Gov EPC Verified</span></h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="flex justify-between border-b border-[#30363d] pb-2"><span class="text-[11px] text-gray-400 uppercase">Internal Area</span><span class="text-[13px] font-bold text-white text-right" id="val-area">--</span></div>
+                            <div class="flex justify-between border-b border-[#30363d] pb-2"><span class="text-[11px] text-gray-400 uppercase">Property Style</span><span class="text-[13px] font-bold text-white text-right" id="val-type">--</span></div>
+                            <div class="flex justify-between"><span class="text-[11px] text-gray-400 uppercase">Primary Heating</span><span class="text-[13px] font-bold text-white text-right" id="val-heating">--</span></div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between border-b border-[#30363d] pb-2"><span class="text-[11px] text-gray-400 uppercase">Wall Composition</span><span class="text-[13px] font-bold text-white text-right" id="val-walls">--</span></div>
+                            <div class="flex justify-between border-b border-[#30363d] pb-2"><span class="text-[11px] text-gray-400 uppercase">Roof System</span><span class="text-[13px] font-bold text-white text-right" id="val-roof">--</span></div>
+                            <div class="flex justify-between"><span class="text-[11px] text-gray-400 uppercase">Energy Rating</span><span class="text-[13px] font-bold text-white text-right" id="val-rating">--</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial -->
+                <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 relative overflow-hidden shadow-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-[#0dcaf0]"></div>
+                    <h3 class="text-xs uppercase text-[#0dcaf0] font-bold tracking-widest mb-6">Financial Baseline <span class="badge badge-verified ml-2 bg-gray-900">HM Land Registry</span></h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b border-[#30363d] pb-2 items-start">
+                            <span class="text-[11px] text-gray-400 uppercase w-1/2">Most Recent Sale</span>
+                            <div class="text-right w-1/2">
+                                <span class="text-lg font-black text-[#238636]" id="val-equity">--</span>
+                                <span class="block text-[9px] text-gray-500 uppercase mt-1" id="val-equity-note">Land Registry Price Paid data</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-[11px] text-gray-400 uppercase w-1/2">Sales on this Postcode</span>
+                            <span class="text-[13px] font-bold text-white text-right w-1/2" id="val-potential">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Matrix -->
+                <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 relative overflow-hidden shadow-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-[#0dcaf0]"></div>
+                    <h3 class="text-xs uppercase text-[#0dcaf0] font-bold tracking-widest mb-6">Structural Risk <span class="badge ml-2 bg-gray-900 text-gray-400">Open-Meteo</span></h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b border-[#30363d] pb-2"><span class="text-[11px] text-gray-400 uppercase">Elevation (ASL)</span><span class="text-[13px] font-bold text-white text-right" id="val-elevation">--</span></div>
+                        <div class="flex justify-between border-b border-[#30363d] pb-2"><span class="text-[11px] text-gray-400 uppercase">Wind Exposure</span><span class="text-[13px] font-bold text-white text-right" id="val-exposure">--</span></div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-[11px] text-gray-400 uppercase w-1/2">Load Rating</span>
+                            <div class="text-right w-1/2">
+                                <span class="text-[13px] font-bold text-white">0.6 kN/m²</span>
+                                <span class="block text-[9px] text-gray-500 uppercase mt-1">UK Snow Load Standard</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Solar -->
+                <div class="bg-[#161b22] border border-[#30363d] rounded-xl p-6 relative overflow-hidden shadow-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-[#0dcaf0]"></div>
+                    <h3 class="text-xs uppercase text-[#0dcaf0] font-bold tracking-widest mb-6">Solar Analytics <span class="badge ml-2 bg-gray-900 text-gray-400">SunCalc</span></h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b border-[#30363d] pb-2"><span class="text-[11px] text-gray-400 uppercase">Peak Sunlight</span><span class="text-[13px] font-bold text-white text-right" id="val-daylight">--</span></div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-[11px] text-gray-400 uppercase w-1/2">Glass Recommendation</span>
+                            <span class="text-[13px] font-bold text-[#f59e0b] text-right w-1/2" id="val-glass-rec">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Box -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 h-[500px] border border-[#30363d] rounded-xl overflow-hidden bg-black flex flex-col shadow-lg" id="mapContainer">
+                    <div class="p-3 bg-[#21262d] text-white text-xs font-bold flex justify-between items-center border-b border-[#30363d]">
+                        <span>Topographical Property Boundaries</span>
+                        <span class="badge badge-verified bg-gray-900">Ordnance Survey Raster</span>
+                    </div>
+                    <div class="flex items-center justify-center h-full text-[#30363d]">Map Data Pending...</div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const toggleMenu = () => {
+            document.getElementById('appSidebar').classList.toggle('-translate-x-full');
+            document.getElementById('mobileNavOverlay').classList.toggle('active');
+        };
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', toggleMenu);
+        document.getElementById('closeMenuBtn')?.addEventListener('click', toggleMenu);
+        document.getElementById('mobileNavOverlay')?.addEventListener('click', toggleMenu);
+    </script>
+    <script type="module">
+        import { functions, httpsCallable } from './js/core-firebase.js';
+
+        window.runIntelScrape = async function() {
+            const postcode = document.getElementById('postcode').value.trim();
+            const houseNum = document.getElementById('houseNum').value.trim();
+            
+            if (!postcode || !houseNum) return alert("Both House Number and Postcode are required for a deep data extraction.");
+
+            const loader = document.getElementById('loader');
+            const grid = document.getElementById('resultsGrid');
+            
+            grid.classList.remove('grid');
+            grid.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            try {
+                // 1. POSTCODES.IO
+                loader.innerText = "Triangulating geospatial coordinates...";
+                const cleanPC = postcode.replace(/\s+/g, '');
+                const pcRes = await fetch(`https://api.postcodes.io/postcodes/${cleanPC}`);
+                const pcData = await pcRes.json();
+                if (pcData.status !== 200) throw new Error("Postcode not found.");
+                const lat = pcData.result.latitude;
+                const lng = pcData.result.longitude;
+
+                // 2. OPEN-METEO
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&elevation=true`);
+                const weatherData = await weatherRes.json();
+                const elevation = weatherData.elevation;
+                
+                document.getElementById('val-elevation').innerText = `${elevation}m`;
+                
+                let exposureText = "Standard exposure (typical fixings expected)";
+                if (elevation > 150) exposureText = "High exposure — discuss reinforced fixings with your surveyor";
+                else if (elevation > 75) exposureText = "Moderate exposure — may warrant reinforced eaves";
+                document.getElementById('val-exposure').innerText = exposureText;
+
+                // 3. SOLAR 
+                const sunRes = await fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}&formatted=0`);
+                const sunData = await sunRes.json();
+                const dayLengthSecs = sunData.results.day_length;
+                const hours = Math.floor(dayLengthSecs / 3600);
+                
+                document.getElementById('val-daylight').innerText = `${hours}h ${Math.floor((dayLengthSecs % 3600) / 60)}m (Mid-Summer)`;
+                document.getElementById('val-glass-rec').innerText = hours >= 15 ? "Solar Control / Tinted Roof Highly Recommended" : "Standard Low-E / Argon Cavity";
+                document.getElementById('val-glass-rec').style.color = hours >= 15 ? "#E50914" : "#0dcaf0";
+
+                // 4. SECURE EPC CLOUD FUNCTION
+                loader.innerText = "Querying UK Government EPC Register...";
+                const getEPCData = httpsCallable(functions, 'fetchEPCData');
+                const epcResult = await getEPCData({ postcode: cleanPC, houseNum: houseNum });
+                
+                if(epcResult.data.success && epcResult.data.data) {
+                    const epc = epcResult.data.data;
+                    const area = epc['total-floor-area'];
+                    document.getElementById('val-area').innerText = `${area} m²`;
+                    document.getElementById('val-type').innerText = epc['property-type'] + (epc['built-form'] ? ` (${epc['built-form']})` : '');
+                    document.getElementById('val-heating').innerText = epc['mainheat-description'];
+                    document.getElementById('val-walls').innerText = epc['walls-description'];
+                    document.getElementById('val-roof').innerText = epc['roof-description'];
+                    document.getElementById('val-rating').innerText = `Band ${epc['current-energy-rating'].toUpperCase()}`;
+                } else {
+                    document.getElementById('val-area').innerText = "Unregistered Property";
+                }
+
+                // 4b. REAL LAND REGISTRY SOLD PRICES (replaces a previous
+                // fabricated "£2,600/sqm" valuation that was badged as if
+                // it came from Land Registry data — it didn't, it was a
+                // flat assumed constant. This is genuine Price Paid data.)
+                loader.innerText = "Checking HM Land Registry sold prices...";
+                const getIntel = httpsCallable(functions, 'getPostcodeIntel');
+                const intelResult = await getIntel({ postcode: cleanPC, houseNum });
+                const sales = intelResult.data?.recentSales || [];
+
+                if (sales.length > 0) {
+                    const mostRecent = sales[0];
+                    document.getElementById('val-equity').innerText = `£${Number(mostRecent.pricePaid).toLocaleString('en-GB')}`;
+                    document.getElementById('val-equity-note').innerText = mostRecent.date ? `Sold ${new Date(mostRecent.date).toLocaleDateString('en-GB')}` : 'Land Registry Price Paid data';
+                    document.getElementById('val-potential').innerText = `${sales.length} sale${sales.length > 1 ? 's' : ''} on record`;
+                } else {
+                    document.getElementById('val-equity').innerText = "No record";
+                    document.getElementById('val-equity-note').innerText = "No Price Paid data for this postcode";
+                    document.getElementById('val-potential').innerText = "--";
+                }
+
+                // 5. SECURE ORDNANCE SURVEY CLOUD FUNCTION
+                loader.innerText = "Fetching Ordnance Survey mapping data...";
+                const getOSData = httpsCallable(functions, 'fetchOSMap');
+                const osResult = await getOSData({ lat: lat, lng: lng });
+                
+                document.getElementById('mapContainer').innerHTML = `
+                    <div class="p-3 bg-[#21262d] text-white text-xs font-bold flex justify-between items-center border-b border-[#30363d]">
+                        <span>Topographical Property Boundaries</span>
+                        <span class="badge badge-verified bg-gray-900">Ordnance Survey Raster Data</span>
+                    </div>
+                    <img src="${osResult.data.url}" class="w-full h-full object-cover" alt="Ordnance Survey Map" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'#000\\'/><text x=\\'50%\\' y=\\'50%\\' font-family=\\'Arial\\' font-size=\\'14\\' fill=\\'#888\\' text-anchor=\\'middle\\'>Map Data Unavailable</text></svg>'">
+                `;
+
+                // SHOW UI
+                loader.classList.add('hidden');
+                grid.classList.remove('hidden');
+                grid.classList.add('grid');
+
+            } catch (error) {
+                loader.classList.add('hidden');
+                alert("Intel Extraction Failed: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

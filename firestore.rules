@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isStaff() {
+      return request.auth != null &&
+        (request.auth.token.role == 'designer' || request.auth.token.role == 'admin');
+    }
+
+    // Full private record. Staff only. The customer-facing vault NEVER
+    // reads this directly — it goes through the verifyVaultPin /
+    // getSystemRenderData Cloud Functions, which use the Admin SDK and
+    // are not subject to these rules at all.
+    match /surveys/{surveyId} {
+      allow read, write: if isStaff();
+
+      // Two-way chat between customer and designer. Low sensitivity
+      // (no pricing/PII beyond what's typed), kept public so the
+      // unauthenticated customer vault can use it directly.
+      match /messages/{messageId} {
+        allow read: if true;
+        allow create: if request.resource.data.keys().hasAll(['sender', 'text'])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() < 2000;
+        allow update, delete: if isStaff();
+      }
+    }
+
+    // Public, price-free mirror. Written only by the mirrorVaultStatus
+    // Cloud Function (Admin SDK) — never directly by any client.
+    match /vaultStatus/{surveyId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // A brand new signup (signup.html) has a valid Firebase Auth account
+    // but no role claim yet — this just lets them record "please grant me
+    // access" for an admin to see and act on via grantStaffRole. It grants
+    // no dashboard access on its own.
+    match /accessRequests/{uid} {
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow read: if isStaff();
+      allow update, delete: if isStaff();
+    }
+
+    // Designer profile docs, keyed by email (name, role, bio, headshot,
+    // default brand). Any signed-in staff member can read all profiles
+    // (needed for dossier generation, project cards, etc), but can only
+    // write their own — admins can edit anyone's. This collection had NO
+    // rule at all before, which silently broke the Designer Profile module
+    // and profile-driven brand switching under the staff-only lockdown.
+    match /designers/{designerEmail} {
+      allow read: if isStaff();
+      allow write: if isStaff() && (request.auth.token.email == designerEmail || request.auth.token.role == 'admin');
+    }
+  }
+}

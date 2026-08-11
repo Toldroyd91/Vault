@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Command Center - Full Survey Pack</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-dark: #0d1117; 
+            --card-bg: #161b22;
+            --accent: #0dcaf0; 
+            --accent-hover: #31d2f2;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+            --input-bg: #090d13;
+            --success: #238636;
+        }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; overflow: hidden; }
+        
+        /* Typography & Cards */
+        h3 { margin-top: 0; font-size: 13px; color: var(--accent); font-weight: 900; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 22px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(0,0,0,0.3); margin-bottom: 20px; transition: border-color 0.2s; }
+        .card:hover { border-color: #4b5563; }
+        
+        /* Form Elements */
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        @media (min-width: 640px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+        .full-width { grid-column: 1 / -1; }
+        
+        label { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        input, select, textarea { background: var(--input-bg); border: 1px solid var(--border-color); color: #fff; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 14px; transition: all 0.2s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(13, 202, 240, 0.15); }
+        
+        .checkbox-group { display: flex; align-items: center; gap: 10px; background: var(--input-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; }
+        .checkbox-group input { width: auto; accent-color: var(--accent); transform: scale(1.2); margin: 0; }
+        .checkbox-group label { margin: 0; font-size: 13px; color: #fff; text-transform: none; letter-spacing: normal; font-weight: normal;}
+        
+        /* Modal & Canvas */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 900px; padding: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .canvas-container { background: #000; border-radius: 8px; width: 100%; height: 550px; border: 2px dashed var(--border-color); display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; touch-action: none; margin-bottom: 15px; }
+        canvas { max-width: 100%; max-height: 100%; }
+
+        /* Buttons */
+        .action-bar { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        @media (min-width: 640px) { .action-bar { flex-direction: row; } }
+        .btn-main { background: var(--accent); color: #000; border: none; padding: 16px 24px; border-radius: 6px; font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.2s; flex: 1; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
+        .btn-main:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(13, 202, 240, 0.3); }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-secondary { background: #21262d; border: 1px solid var(--border-color); color: #fff; padding: 12px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center;}
+        .btn-secondary:hover { background: #30363d; border-color: #8b949e; }
+        .btn-success { background: var(--success); color: white;}
+        .btn-success:hover { background: #2ea043; box-shadow: 0 4px 15px rgba(35, 134, 54, 0.3); }
+        
+        #syncProgressWrapper { display: none; margin-top: 15px; width: 100%; }
+        .progress-bg { height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
+
+        /* Staging List UI */
+        .staging-row { display: flex; flex-direction: column; gap: 15px; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; transition: 0.3s; }
+        .staging-row:hover { border-color: #4b5563; }
+        .thumb-container { position: relative; width: 100px; height: 100px; flex-shrink: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-color); }
+        .thumb-container img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: 0.2s; cursor: pointer; }
+        .thumb-container:hover .thumb-overlay { opacity: 1; }
+        .edited-badge { position: absolute; top: -5px; right: -5px; background: var(--success); color: white; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        @media (min-width: 600px) { .staging-row { flex-direction: row; } }
+
+        /* Sidebar & Layout Specifics */
+        .nav-link { transition: all 0.2s ease; border: 1px solid transparent; }
+        .nav-link.active { background: rgba(13, 202, 240, 0.15); color: var(--accent); border-color: rgba(13, 202, 240, 0.4); box-shadow: inset 4px 0 0 var(--accent); }
+        .nav-link:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease-out; }
+        .tab-content.active-tab { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Mobile Overlay */
+        #mobileNavOverlay { display: none; }
+        #mobileNavOverlay.active { display: block; }
+    </style>
+</head>
+<body class="flex h-screen w-full">
+
+    <!-- Mobile Header (Hidden on Desktop) -->
+    <div class="md:hidden flex items-center justify-between bg-[#161b22] p-4 border-b border-[#30363d] absolute top-0 w-full z-40 shadow-md">
+        <h2 class="text-white font-black uppercase text-lg m-0">COHI<span class="text-[#0dcaf0]">PRO</span></h2>
+        <button id="mobileMenuBtn" class="text-white text-2xl p-2">☰</button>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileNavOverlay" class="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <nav id="appSidebar" class="w-64 md:w-72 bg-[#090d13] border-r border-[#30363d] h-full flex flex-col fixed md:relative z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl md:shadow-none">
+        
+        <div class="p-6 border-b border-[#30363d] flex justify-between items-center bg-[#05080c]">
+            <h2 class="text-white font-black uppercase text-xl m-0 tracking-widest">COHI<span class="text-[#0dcaf0]">PRO</span></h2>
+            <button id="closeMenuBtn" class="md:hidden text-gray-400 hover:text-white text-xl">✕</button>
+        </div>
+        
+        <div class="p-4 border-b border-[#30363d] bg-[#090d13]">
+            <label class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2 block">Assigned Brand</label>
+            <select id="brandSelect" class="w-full p-2 bg-[#161b22] border border-[#30363d] text-white font-bold rounded text-xs outline-none focus:border-[#0dcaf0]"></select>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-4 flex flex-col gap-2 px-3">
+            <button onclick="switchTab('tab-client', this)" class="nav-link active flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400">
+                <span class="text-lg">👤</span> Profile & Timeline
+            </button>
+            <button onclick="switchTab('tab-scope', this)" class="nav-link flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400">
+                <span class="text-lg">📏</span> Scope & Structure
+            </button>
+            <button onclick="switchTab('tab-logistics', this)" class="nav-link flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400">
+                <span class="text-lg">🚧</span> Site Logistics
+            </button>
+            <button onclick="switchTab('tab-design', this)" class="nav-link flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400">
+                <span class="text-lg">🎨</span> Design Spec
+            </button>
+            <button onclick="switchTab('tab-compliance', this)" class="nav-link flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400">
+                <span class="text-lg">⚖️</span> Compliance
+            </button>
+            <button onclick="switchTab('tab-photos', this)" class="nav-link flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400">
+                <span class="text-lg">📸</span> Photos & Markup
+            </button>
+            
+            <div class="my-2 border-t border-[#30363d] mx-2"></div>
+            
+            <button onclick="switchTab('tab-finalise', this)" class="nav-link flex items-center gap-3 w-full text-left p-3 rounded-lg text-sm font-bold uppercase tracking-wide text-gray-400">
+                <span class="text-lg">💾</span> Finalise & Sync
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN SCROLLABLE WORKSPACE -->
+    <main class="flex-1 h-full overflow-y-auto pt-16 md:pt-0 bg-[var(--bg-dark)] relative">
+        <div class="p-4 md:p-8 max-w-4xl mx-auto pb-24">
+
+            <!-- TAB 1: CLIENT PROFILE -->
+            <section id="tab-client" class="tab-content active-tab">
+                <div class="card border-t-4 border-t-[#0dcaf0]">
+                    <h3>Client Profile & Timelines</h3>
+                    <div class="form-grid">
+                        <div><label>Lead Name *</label><input type="text" id="clientName" placeholder="e.g. John Dow"></div>
+                        <div><label>Customer Number</label><input type="text" id="clientNum" placeholder="e.g. 10245"></div>
+                        <div><label>House No. / Name *</label><input type="text" id="houseNum" placeholder="e.g. 15 or 'The Barn'"></div>
+                        <div><label>Site Postcode *</label><input type="text" id="postCode" placeholder="e.g. S70 0PN" style="text-transform: uppercase;"></div>
+                        <div><label>Consultation Date</label><input type="date" id="apptDate"></div>
+                        <div><label>Revisit Date</label><input type="date" id="revisitDate"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: SCOPE & STRUCTURE -->
+            <section id="tab-scope" class="tab-content">
+                <div class="card">
+                    <h3>Project Scope & Structure</h3>
+                    <div class="form-grid">
+                        <div class="full-width">
+                            <label>Build Type</label>
+                            <select id="buildType">
+                                <option value="">Select...</option>
+                                <option value="Single Storey Extension">Single Storey Extension</option>
+                                <option value="Conservatory">Conservatory</option>
+                                <option value="Orangery">Orangery</option>
+                                <option value="Hybrid Extension">Hybrid Extension</option>
+                                <option value="Porch">Porch</option>
+                                <option value="Garage Conversion">Garage Conversion</option>
+                            </select>
+                        </div>
+                        <div><label>Proposed Size (mm)</label><input type="text" id="proposedSize" placeholder="e.g. 3000x4000"></div>
+                        <div>
+                            <label>Existing House Material</label>
+                            <select id="houseMaterial">
+                                <option value="">Select...</option>
+                                <option value="Standard Brick">Standard Brick</option>
+                                <option value="Stone">Stone</option>
+                                <option value="Rendered">Rendered</option>
+                                <option value="Pebbledash">Pebbledash</option>
+                                <option value="Timber Clad">Timber Clad</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Base Type</label>
+                            <select id="baseType">
+                                <option value="">Select...</option>
+                                <option value="Standard Concrete">Standard Concrete</option>
+                                <option value="Block & Beam">Block & Beam</option>
+                                <option value="Piled / Steel">Piled / Steel</option>
+                                <option value="Existing Base">Existing Base (Retained)</option>
+                            </select>
+                        </div>
+                        <div><label>DPC Depth (mm)</label><input type="number" id="dpcDepth" placeholder="e.g. 150"></div>
+                        <div><label>Fascia Height (mm)</label><input type="number" id="fasciaHeight" placeholder="e.g. 2400"></div>
+                        <div class="full-width">
+                            <label>Sub-Floor Venting (Air Bricks)</label>
+                            <select id="airBricks">
+                                <option value="">Select...</option>
+                                <option value="Standard Venting Required">Standard Venting Required</option>
+                                <option value="Telescopic Sub-Floor Ducts">Telescopic Sub-Floor Ducts</option>
+                                <option value="None Required">None Required</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: LOGISTICS -->
+            <section id="tab-logistics" class="tab-content">
+                <div class="card">
+                    <h3>Logistics & Restrictions</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label>Access Difficulties</label>
+                            <select id="accessDifficult">
+                                <option value="">Select...</option>
+                                <option value="Unrestricted Access">Unrestricted Access</option>
+                                <option value="Narrow Side Gate">Narrow Side Gate</option>
+                                <option value="Through Garage Only">Through Garage Only</option>
+                                <option value="Through House Only">Through House Only</option>
+                                <option value="Severe Incline / Steps">Severe Incline / Steps</option>
+                            </select>
+                        </div>
+                        <div><label>Access Width (mm)</label><input type="number" id="accessWidth" placeholder="e.g. 900"></div>
+                        <div>
+                            <label>Drainage Relocations</label>
+                            <select id="drainage">
+                                <option value="">Select...</option>
+                                <option value="Clear / No Action">Clear / No Action</option>
+                                <option value="Manhole Cover Move">Manhole Cover Move</option>
+                                <option value="Rainwater Pipe Move">Rainwater Pipe Move</option>
+                                <option value="Soil Pipe Move">Soil Pipe Move</option>
+                                <option value="Gulley Move">Gulley Move</option>
+                            </select>
+                        </div>
+                        <div class="full-width"><label>Wall Obstacles</label><input type="text" id="wallObstacles" placeholder="e.g. Boiler flue, extraction vents, cables"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: DESIGN SPEC -->
+            <section id="tab-design" class="tab-content">
+                <div class="card">
+                    <h3>Design Specification</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label>Roof System</label>
+                            <select id="roofType">
+                                <option value="">Select...</option>
+                                <option value="Ultra380 Solid Roof">Ultra380 Solid Roof</option>
+                                <option value="Hybrid/Livin Roof">Hybrid/Livin Roof</option>
+                                <option value="Glass Conservatory Roof">Glass Conservatory Roof</option>
+                                <option value="Polycarbonate Roof">Polycarbonate Roof</option>
+                                <option value="Edwardian Roof">Edwardian Roof</option>
+                                <option value="Standard Flat Roof">Standard Flat Roof</option>
+                            </select>
+                        </div>
+                        <div><label>Roof Pitch (Degrees)</label><input type="number" id="roofPitch" placeholder="e.g. 25"></div>
+                        <div>
+                            <label>Frame Colour (External)</label>
+                            <select id="frameColour">
+                                <option value="">Select...</option>
+                                <option value="White">White</option>
+                                <option value="Anthracite Grey (Smooth)">Anthracite Grey (Smooth)</option>
+                                <option value="Grey Foil">Grey Foil</option>
+                                <option value="Chartwell Green">Chartwell Green</option>
+                                <option value="Rosewood">Rosewood</option>
+                                <option value="Light Oak">Light Oak</option>
+                                <option value="Black Foil">Black Foil</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Frame Colour (Internal)</label>
+                            <select id="internalFrameColour">
+                                <option value="White">White</option>
+                                <option value="Match External">Match External</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- TAB 5: COMPLIANCE -->
+            <section id="tab-compliance" class="tab-content">
+                <div class="card">
+                    <h3>Compliance & Regulations</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label>Building Regs Requirement</label>
+                            <select id="buildingRegs">
+                                <option value="">Select...</option>
+                                <option value="Full Building Control Required">Full Building Control Required</option>
+                                <option value="Replacement - Masonry Alterations">Replacement - Masonry Alterations</option>
+                                <option value="Replacement - No Alterations">Replacement - No Alterations</option>
+                                <option value="Exempt / Not Required">Exempt / Not Required</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Planning Authority Status</label>
+                            <select id="planningPerms">
+                                <option value="">Select...</option>
+                                <option value="Full Planning Permission Needed">Full Planning Permission Needed</option>
+                                <option value="NCS Prior Approval Needed">NCS Prior Approval Needed</option>
+                                <option value="Permitted Development (No Action)">Permitted Development (No Action)</option>
+                            </select>
+                        </div>
+                        <div class="full-width">
+                            <label>SAP Energy Calcs</label>
+                            <select id="sapCalcs">
+                                <option value="">Select...</option>
+                                <option value="Yes">Yes - Required</option>
+                                <option value="No">No - Exempt</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Handover Pamphlets</h3>
+                    <div class="checkbox-group"><input type="checkbox" id="cb-brochure"><label for="cb-brochure">Product Brochure Handed Over</label></div>
+                    <div class="checkbox-group"><input type="checkbox" id="cb-warranty"><label for="cb-warranty">Warranty Documentation Provided</label></div>
+                    <div class="checkbox-group"><input type="checkbox" id="cb-planning"><label for="cb-planning">Planning Guide / Regulatory Handout</label></div>
+                    <div class="checkbox-group"><input type="checkbox" id="cb-sap"><label for="cb-sap">SAP Calculations Factsheet</label></div>
+                    <div class="checkbox-group"><input type="checkbox" id="cb-roof"><label for="cb-roof">Roof System Specification Guide</label></div>
+                </div>
+            </section>
+
+            <!-- TAB 6: PHOTOS & MARKUP -->
+            <section id="tab-photos" class="tab-content">
+                <div class="card">
+                    <h3>Site Photography & Markup</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Upload site photos, categorize them, add defect notes, and apply structural markups directly onto the images via the Sniper tool.</p>
+                    
+                    <!-- Hidden input triggered by stylized button -->
+                    <input type="file" id="batchPhotoUpload" multiple accept="image/*" style="display: none;">
+                    <button onclick="document.getElementById('batchPhotoUpload').click()" class="btn-secondary w-full flex items-center justify-center gap-2 mb-6" style="padding: 16px;">
+                        <span class="text-xl">📷</span> Select & Upload Site Photos
+                    </button>
+                    
+                    <div id="stagingListContainer" style="display: flex; flex-direction: column;">
+                        <!-- JS Injects Staging Rows Here -->
+                        <div class="text-center p-8 border-2 border-dashed border-[#30363d] rounded-lg text-gray-500">
+                            No photos uploaded yet. Tap above to begin.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: FINALISE & EXPORT -->
+            <section id="tab-finalise" class="tab-content">
+                <div class="card">
+                    <h3>Designer Survey Notes</h3>
+                    <div class="full-width">
+                        <textarea id="designerNotes" rows="8" placeholder="Enter specific field notes for installers, structural anomalies, or specific design requests from the client..."></textarea>
+                    </div>
+                    
+                    <button id="btn-ai-polish" class="btn-secondary" style="margin-top: 15px; width: 100%;">✨ AI Polish Notes</button>
+                </div>
+
+                <div class="card border-t-4 border-t-[#238636]">
+                    <h3>System Sync & Export</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Ensure all client and structural details are verified before pushing to the cloud architecture.</p>
+                    
+                    <div class="action-bar">
+                        <button id="btn-sync" class="btn-success btn-main">Save & Sync to Cloud</button>
+                        <button id="btn-generate-pdf" class="btn-main" style="background: #e11d48; color: white;">Generate PDF</button>
+                        <button id="btn-vault" class="btn-main">Open Vault</button>
+                    </div>
+
+                    <div id="syncProgressWrapper">
+                        <label id="progressText" style="margin-bottom: 5px; color: var(--accent); font-size: 12px; font-weight: bold; display: block; text-transform: uppercase;">Initializing Sync...</label>
+                        <div class="progress-bg"><div id="progressFill" class="progress-fill"></div></div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- THE SNIPER ENGINE MODAL (Remains Outside Main Flow to Cover Screen) -->
+    <div id="sniperModal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;">
+                <h3 style="border: none; margin: 0; padding: 0;">Structural Markup & Calibration</h3>
+                <button id="closeSniperBtn" style="background: transparent; border: none; color: var(--text-muted); padding: 0; width: auto; font-size: 24px; cursor: pointer;">✕</button>
+            </div>
+            
+            <div class="canvas-container" style="cursor: grab;">
+                <canvas id="sniperCanvas" width="800" height="550"></canvas>
+                <div style="position: absolute; bottom: 20px; right: 20px; background: rgba(9, 13, 19, 0.85); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 12px; color: #8b949e; font-weight: bold; text-transform: uppercase;">Zoom</span>
+                    <input type="range" id="sniperZoom" min="0.5" max="5" step="0.1" value="1" style="width: 100px;">
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                <button id="btn-sniper-mark" class="btn-secondary" style="font-size: 12px; padding: 14px; flex: 1; min-width: 150px;">🎯 Drop Target Pin</button>
+                <button id="btn-sniper-clear" class="btn-secondary" style="font-size: 12px; padding: 14px; flex: 0.5; min-width: 100px;">↺ Clear</button>
+                <button id="saveMarkupBtn" class="btn-success btn-main" style="font-size: 12px; padding: 14px; flex: 2; min-width: 200px; margin-top: 0;">Save Image Details</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, doc, setDoc, getDoc, collection, serverTimestamp, onAuthStateChanged, BRAND_CONFIG } from './js/core-firebase.js';
+
+        // --- UI NAVIGATION LOGIC ---
+        window.switchTab = (tabId, clickedBtn) => {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
+            // Remove active state from all buttons
+            document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active', 'bg-[#0dcaf0]/20', 'text-[#0dcaf0]', 'border-[#0dcaf0]/50'));
+            
+            // Show target tab
+            document.getElementById(tabId).classList.add('active-tab');
+            
+            // Add active state to clicked button (or find it if called programmatically)
+            if(clickedBtn) {
+                clickedBtn.classList.add('active', 'bg-[#0dcaf0]/20', 'text-[#0dcaf0]', 'border-[#0dcaf0]/50');
+            }
+
+            // Close mobile menu if open
+            const sidebar = document.getElementById('appSidebar');
+            if(sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                sidebar.classList.add('-translate-x-full');
+                document.getElementById('mobileNavOverlay').classList.remove('active');
+            }
+        };
+
+        // Mobile Menu Toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('appSidebar').classList.remove('-translate-x-full');
+            document.getElementById('mobileNavOverlay').classList.add('active');
+        });
+
+        const closeMobileMenu = () => {
+            document.getElementById('appSidebar').classList.add('-translate-x-full');
+            document.getElementById('mobileNavOverlay').classList.remove('active');
+        };
+
+        document.getElementById('closeMenuBtn').addEventListener('click', closeMobileMenu);
+        document.getElementById('mobileNavOverlay').addEventListener('click', closeMobileMenu);
+
+
+        // --- CORE LOGIC ---
+        const el = (id) => document.getElementById(id);
+        const val = (id) => el(id)?.value || "";
+        const checked = (id) => el(id) ? !!el(id).checked : false;
+
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkhhz0f9/image/upload";
+        const UPLOAD_PRESET = "crm_document_uploads";
+
+        const SurveyState = {
+            id: new URLSearchParams(window.location.search).get('id') || null,
+            brand: "YorkshireWindows",
+            customerProfile: {}, projectSpecs: {}, compliance: {}, designerInsights: {}, media: {}, pamphlets: {}, rawAssets: {}
+        };
+
+        if (el('brandSelect') && BRAND_CONFIG) {
+            el('brandSelect').innerHTML = Object.entries(BRAND_CONFIG).map(([key, data]) => `<option value="${key}">${data.name}</option>`).join('');
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if(!user) { console.warn("Security Notice: Not logged in. Saves will fail."); return; }
+            if(SurveyState.id) {
+                const snap = await getDoc(doc(db, "surveys", SurveyState.id));
+                if(snap.exists()) {
+                    Object.assign(SurveyState, snap.data());
+                    if(el('brandSelect')) el('brandSelect').value = SurveyState.brand || "YorkshireWindows";
+                    if(el('clientName')) el('clientName').value = SurveyState.customerProfile?.leadName || "";
+                    if(el('clientNum')) el('clientNum').value = SurveyState.customerProfile?.customerNum || "";
+                    if(el('houseNum')) el('houseNum').value = SurveyState.customerProfile?.houseNumber || "";
+                    if(el('postCode')) el('postCode').value = SurveyState.customerProfile?.postcode || "";
+                    if(el('apptDate')) el('apptDate').value = SurveyState.customerProfile?.apptDate || "";
+                    if(el('revisitDate')) el('revisitDate').value = SurveyState.customerProfile?.revisitDate || "";
+                    
+                    if(el('buildType')) el('buildType').value = SurveyState.projectSpecs?.buildType || "";
+                    if(el('proposedSize')) el('proposedSize').value = SurveyState.projectSpecs?.proposedSize || "";
+                    if(el('houseMaterial')) el('houseMaterial').value = SurveyState.projectSpecs?.houseMaterial || "";
+                    
+                    if(SurveyState.designerInsights?.design) {
+                        const d = SurveyState.designerInsights.design;
+                        if(d.includes('Base Type:')) el('baseType').value = d.split('Base Type: ')[1].split('\n')[0].trim() || "";
+                        if(d.includes('DPC Depth:')) el('dpcDepth').value = d.split('DPC Depth: ')[1].split('mm')[0].trim() || "";
+                        if(d.includes('Fascia Height:')) el('fasciaHeight').value = d.split('Fascia Height: ')[1].split('mm')[0].trim() || "";
+                        if(d.includes('Air Bricks:')) el('airBricks').value = d.split('Air Bricks: ')[1].split('\n')[0].trim() || "";
+                    }
+
+                    if(el('accessDifficult')) el('accessDifficult').value = SurveyState.projectSpecs?.accessIssues || "";
+                    if(el('accessWidth')) el('accessWidth').value = SurveyState.projectSpecs?.accessWidth || "";
+                    if(el('wallObstacles')) el('wallObstacles').value = SurveyState.projectSpecs?.wallObstacles || "";
+                    if(el('drainage')) el('drainage').value = SurveyState.logistics?.drainage || "";
+                    
+                    if(el('roofType')) el('roofType').value = SurveyState.projectSpecs?.roofStyle || "";
+                    if(el('roofPitch')) el('roofPitch').value = SurveyState.projectSpecs?.roofPitch || "";
+                    
+                    const combinedFrame = SurveyState.projectSpecs?.frameColour || "";
+                    if(combinedFrame.includes(' / Int: ')) {
+                        const parts = combinedFrame.split(' / Int: ');
+                        if(el('frameColour')) el('frameColour').value = parts[0];
+                        if(el('internalFrameColour')) el('internalFrameColour').value = parts[1];
+                    } else {
+                        if(el('frameColour')) el('frameColour').value = combinedFrame;
+                    }
+
+                    if(el('buildingRegs')) el('buildingRegs').value = SurveyState.projectSpecs?.buildingRegs || "";
+                    if(el('planningPerms')) el('planningPerms').value = SurveyState.projectSpecs?.planningPerms || "";
+                    if(el('sapCalcs')) el('sapCalcs').value = SurveyState.compliance?.sapCalcs || "";
+                    if(el('designerNotes')) el('designerNotes').value = SurveyState.designerInsights?.prep || "";
+
+                    if(el('cb-brochure')) el('cb-brochure').checked = !!SurveyState.pamphlets?.brochure;
+                    if(el('cb-warranty')) el('cb-warranty').checked = !!SurveyState.pamphlets?.warranty;
+                    if(el('cb-planning')) el('cb-planning').checked = !!SurveyState.pamphlets?.planning;
+                    if(el('cb-sap')) el('cb-sap').checked = !!SurveyState.pamphlets?.sap;
+                    if(el('cb-roof')) el('cb-roof').checked = !!SurveyState.pamphlets?.roof;
+                }
+            }
+        });
+
+        // --- STAGING LIST & BATCH UPLOAD LOGIC ---
+        let stagingImages = [];
+        const stagingContainer = el('stagingListContainer');
+        const batchInput = el('batchPhotoUpload');
+        
+        batchInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1200; 
+                        let scaleSize = MAX_WIDTH / img.width;
+                        if(scaleSize > 1) scaleSize = 1;
+                        canvas.width = img.width * scaleSize;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        stagingImages.push({
+                            id: `img_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+                            src: canvas.toDataURL('image/jpeg', 0.8),
+                            category: 'misc',
+                            description: '',
+                            hasMarkup: false
+                        });
+                        renderStagingList();
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            batchInput.value = '';
+        });
+
+        function renderStagingList() {
+            stagingContainer.innerHTML = '';
+            if (stagingImages.length === 0) {
+                stagingContainer.innerHTML = `<div class="text-center p-8 border-2 border-dashed border-[#30363d] rounded-lg text-gray-500">No photos uploaded yet. Tap above to begin.</div>`;
+                return;
+            }
+
+            stagingImages.forEach((imgObj, index) => {
+                const row = document.createElement('div');
+                row.className = 'staging-row';
+                
+                row.innerHTML = `
+                    <div class="thumb-container">
+                        <img src="${imgObj.src}">
+                        <div class="thumb-overlay" onclick="window.openSniperModal(${index})">
+                            <span style="font-size: 24px;">🎯</span>
+                            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: white;">Markup</span>
+                        </div>
+                        ${imgObj.hasMarkup ? `<div class="edited-badge">Edited</div>` : ''}
+                    </div>
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px;">
+                        <div>
+                            <label>Designation</label>
+                            <select onchange="window.updateImageCategory(${index}, this.value)" style="padding: 8px; font-size: 12px;">
+                                <option value="misc" ${imgObj.category === 'misc' ? 'selected' : ''}>Miscellaneous / General</option>
+                                <option value="front" ${imgObj.category === 'front' ? 'selected' : ''}>Front Elevation</option>
+                                <option value="side" ${imgObj.category === 'side' ? 'selected' : ''}>Side Elevation</option>
+                                <option value="back" ${imgObj.category === 'back' ? 'selected' : ''}>Rear Elevation</option>
+                                <option value="access" ${imgObj.category === 'access' ? 'selected' : ''}>Access Route</option>
+                                <option value="drainage" ${imgObj.category === 'drainage' ? 'selected' : ''}>Drainage / Plumbing</option>
+                                <option value="trees" ${imgObj.category === 'trees' ? 'selected' : ''}>Trees / Boundaries</option>
+                                <option value="brick" ${imgObj.category === 'brick' ? 'selected' : ''}>Brickwork Match</option>
+                                <option value="sniper" ${imgObj.category === 'sniper' ? 'selected' : ''}>Sniper Sketch / Spec</option>
+                            </select>
+                        </div>
+                        <div>
+                            <textarea onchange="window.updateImageDescription(${index}, this.value)" rows="2" placeholder="Add specific defect notes or context..." style="padding: 8px; font-size: 12px; resize: vertical;">${imgObj.description}</textarea>
+                        </div>
+                    </div>
+                `;
+                stagingContainer.appendChild(row);
+            });
+        }
+
+        window.updateImageCategory = (index, val) => { stagingImages[index].category = val; };
+        window.updateImageDescription = (index, text) => { stagingImages[index].description = text; };
+
+        // --- CLOUDINARY UPLOAD LOGIC ---
+        async function uploadBase64ToCloudinary(base64Str) {
+            try {
+                const formData = new FormData(); formData.append('file', base64Str); formData.append('upload_preset', UPLOAD_PRESET);
+                const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                const data = await response.json();
+                return data.secure_url ? data.secure_url : null;
+            } catch (err) { return null; }
+        }
+
+        const setProgress = (percent, label) => {
+            const wrapper = el('syncProgressWrapper');
+            wrapper.style.display = 'block';
+            el('progressFill').style.width = percent + '%';
+            el('progressText').innerText = label;
+        };
+
+        el('btn-ai-polish')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            const notesEl = el('designerNotes');
+            const notes = notesEl.value.trim();
+            if(!notes) return alert("Please enter some rough notes first to polish.");
+            
+            const btn = e.target;
+            btn.innerText = "✨ Polishing..."; btn.disabled = true;
+
+            setTimeout(() => {
+                const lines = notes.split('\n').filter(line => line.trim() !== '');
+                const formattedNotes = "PROFESSIONAL SURVEY OBSERVATIONS:\n\n" + lines.map(line => `• ${line.charAt(0).toUpperCase() + line.slice(1)}`).join('\n');
+                notesEl.value = formattedNotes;
+                btn.innerText = "✨ AI Polish Notes"; btn.disabled = false;
+            }, 800);
+        });
+
+        // --- SAVE & SYNC ---
+        el('btn-sync')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!val('clientName') || !val('postCode') || !val('houseNum')) {
+                // Auto switch to client tab if validation fails
+                window.switchTab('tab-client', document.querySelector('.nav-link'));
+                return alert("Lead Name, House Number, and Postcode are mandatory.");
+            }
+
+            const btn = e.target;
+            const btnPdf = el('btn-generate-pdf');
+            const btnVault = el('btn-vault');
+            
+            btn.disabled = true;
+            if(btnPdf) btnPdf.disabled = true;
+            if(btnVault) btnVault.disabled = true;
+
+            setProgress(10, "Initializing Sync & Processing Batches...");
+
+            try {
+                let uploadedPhotoData = SurveyState.rawAssets || { front:[], side:[], back:[], access:[], drainage:[], trees:[], brick:[], misc:[], sniper:[] };
+                let compiledNotes = val('designerNotes');
+                let hasUploads = false;
+
+                let processed = 0;
+                for (let i = 0; i < stagingImages.length; i++) {
+                    const imgObj = stagingImages[i];
+                    setProgress(20 + ((processed / stagingImages.length) * 50), `Securing Image ${i+1} of ${stagingImages.length}...`);
+                    
+                    const url = await uploadBase64ToCloudinary(imgObj.src);
+                    if (url) {
+                        const cat = imgObj.category;
+                        if(!uploadedPhotoData[cat]) uploadedPhotoData[cat] = [];
+                        uploadedPhotoData[cat].push(url);
+                        
+                        if(imgObj.description.trim() !== '') {
+                            compiledNotes += `\n\n[Photo Note - ${cat.toUpperCase()}]: ${imgObj.description}`;
+                        }
+                        hasUploads = true;
+                    }
+                    processed++;
+                }
+
+                if (hasUploads) {
+                    SurveyState.rawAssets = uploadedPhotoData;
+                    stagingImages = []; 
+                    renderStagingList();
+                }
+
+                setProgress(80, "Syncing Master Architecture to Firebase...");
+
+                SurveyState.brand = val('brandSelect') || "YorkshireWindows";
+                SurveyState.pipelineStatus = SurveyState.pipelineStatus || "1. Consultation";
+                SurveyState.owner = SurveyState.owner || "Thomas Oldroyd";
+
+                SurveyState.customerProfile = {
+                    leadName: val('clientName'), customerNum: val('clientNum'), houseNumber: val('houseNum'),
+                    postcode: val('postCode').toUpperCase(), apptDate: val('apptDate'), revisitDate: val('revisitDate'),
+                    vaultPIN: SurveyState.customerProfile?.vaultPIN || Math.floor(1000 + Math.random() * 9000).toString()
+                };
+
+                SurveyState.projectSpecs = {
+                    buildType: val('buildType'), proposedSize: val('proposedSize'), roofStyle: val('roofType'), roofPitch: val('roofPitch'),
+                    frameColour: val('frameColour') + (val('internalFrameColour') ? ' / Int: ' + val('internalFrameColour') : ''),
+                    buildingRegs: val('buildingRegs'), planningPerms: val('planningPerms'), houseMaterial: val('houseMaterial'),
+                    wallObstacles: val('wallObstacles'), accessWidth: val('accessWidth'), accessIssues: val('accessDifficult')
+                };
+
+                SurveyState.logistics = { drainage: val('drainage') };
+                SurveyState.compliance = { sapCalcs: val('sapCalcs') };
+
+                SurveyState.designerInsights = {
+                    prep: compiledNotes.trim(), 
+                    design: `Base Type: ${val('baseType') || 'N/A'}\nDPC Depth: ${val('dpcDepth') ? val('dpcDepth') + 'mm' : 'N/A'}\nFascia Height: ${val('fasciaHeight') ? val('fasciaHeight') + 'mm' : 'N/A'}\n${val('airBricks') ? 'Air Bricks: ' + val('airBricks') : ''}`
+                };
+
+                SurveyState.media = {
+                    front: uploadedPhotoData.front?.[0] || null, side: uploadedPhotoData.side?.[0] || null,
+                    rear: uploadedPhotoData.back?.[0] || null, sketch: uploadedPhotoData.sniper?.[0] || null,
+                    surveyGallery: [ ...(uploadedPhotoData.front?.slice(1) || []), ...(uploadedPhotoData.side?.slice(1) || []), ...(uploadedPhotoData.back?.slice(1) || []), ...(uploadedPhotoData.trees || []), ...(uploadedPhotoData.brick || []) ],
+                    accessGallery: [ ...(uploadedPhotoData.access || []), ...(uploadedPhotoData.drainage || []) ],
+                    miscGallery: uploadedPhotoData.misc || []
+                };
+
+                SurveyState.pamphlets = { brochure: checked('cb-brochure'), warranty: checked('cb-warranty'), planning: checked('cb-planning'), sap: checked('cb-sap'), roof: checked('cb-roof') };
+                SurveyState.userId = auth.currentUser ? auth.currentUser.uid : "UNKNOWN_USER"; 
+                SurveyState.timestamps = { updatedAt: serverTimestamp() };
+                if(!SurveyState.id) SurveyState.timestamps.createdAt = serverTimestamp();
+
+                const docRef = SurveyState.id ? doc(db, "surveys", SurveyState.id) : doc(collection(db, "surveys"));
+                await setDoc(docRef, SurveyState, { merge: true });
+                SurveyState.id = docRef.id;
+                
+                el('designerNotes').value = compiledNotes.trim();
+
+                setProgress(100, "Pack Saved Successfully ✓");
+                btn.style.backgroundColor = "#2ea043"; btn.innerText = "Complete Pack Saved ✓";
+                
+                if(btnPdf) btnPdf.disabled = false;
+                if(btnVault) btnVault.disabled = false;
+
+                setTimeout(() => { 
+                    el('syncProgressWrapper').style.display = 'none';
+                    btn.style.backgroundColor = ""; btn.innerText = "Save & Sync to Cloud"; btn.disabled = false; 
+                }, 3000);
+
+            } catch(err) {
+                alert("Database Sync Error: " + err.message);
+                el('syncProgressWrapper').style.display = 'none';
+                btn.innerText = "Save & Sync to Cloud"; btn.disabled = false;
+                if(btnPdf) btnPdf.disabled = false;
+                if(btnVault) btnVault.disabled = false;
+            }
+        });
+
+        // ROUTING
+        el('btn-generate-pdf')?.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            if(!SurveyState.id) return alert("Please click 'Save & Sync' first to lock in the data.");
+            window.location.href = `pdf-compiler.html?id=${SurveyState.id}`;
+        });
+
+        el('btn-vault')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(!SurveyState.id) return alert("Please click 'Save & Sync' first.");
+            window.location.href = `vault.html?id=${SurveyState.id}`;
+        });
+        
+        // --- SNIPER MODAL & CANVAS LOGIC ---
+        const sniperModal = el('sniperModal');
+        const canvas = el('sniperCanvas');
+        const ctx = canvas.getContext('2d');
+        const zoomSlider = el('sniperZoom');
+        const markBtn = el('btn-sniper-mark');
+        let currentMarkupIndex = null;
+        let sniperImg = null; let imgScale = 1; let imgX = 0, imgY = 0; let isDragging = false; let startDragX = 0, startDragY = 0;
+        window.sniperPoints = []; let lines = []; let calibrationRatio = null; 
+
+        window.openSniperModal = (index) => {
+            currentMarkupIndex = index;
+            sniperModal.style.display = 'flex';
+            const src = stagingImages[index].src;
+            window.dispatchEvent(new CustomEvent('loadSniperImage', { detail: src }));
+        };
+
+        const closeSniperModal = () => {
+            sniperModal.style.display = 'none';
+            currentMarkupIndex = null;
+        };
+
+        el('closeSniperBtn').addEventListener('click', (e) => { e.preventDefault(); closeSniperModal(); });
+
+        window.addEventListener('loadSniperImage', (e) => {
+            sniperImg = new Image();
+            sniperImg.onload = () => {
+                imgScale = Math.min(canvas.width / sniperImg.width, canvas.height / sniperImg.height);
+                if (zoomSlider) { zoomSlider.value = imgScale; zoomSlider.min = imgScale * 0.5; }
+                imgX = (canvas.width - (sniperImg.width * imgScale)) / 2; imgY = (canvas.height - (sniperImg.height * imgScale)) / 2;
+                window.sniperPoints = []; lines = []; calibrationRatio = null; resetMarkButton(); drawSniper();
+            };
+            sniperImg.src = e.detail;
+        });
+
+        zoomSlider?.addEventListener('input', (e) => {
+            if(!sniperImg) return;
+            const newScale = parseFloat(e.target.value); const cx = canvas.width / 2; const cy = canvas.height / 2;
+            imgX = cx - ((cx - imgX) * (newScale / imgScale)); imgY = cy - ((cy - imgY) * (newScale / imgScale));
+            imgScale = newScale; drawSniper();
+        });
+
+        // Drag/Pan logic
+        canvas.addEventListener('mousedown', (e) => { if(!sniperImg) return; isDragging = true; startDragX = e.offsetX - imgX; startDragY = e.offsetY - imgY; canvas.style.cursor = 'grabbing'; });
+        canvas.addEventListener('mousemove', (e) => { if(!isDragging || !sniperImg) return; imgX = e.offsetX - startDragX; imgY = e.offsetY - startDragY; drawSniper(); });
+        canvas.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
+        canvas.addEventListener('mouseleave', () => { isDragging = false; canvas.style.cursor = 'grab'; });
+        
+        canvas.addEventListener('touchstart', (e) => { if(!sniperImg || e.touches.length > 1) return; const touch = e.touches[0]; const rect = canvas.getBoundingClientRect(); isDragging = true; startDragX = (touch.clientX - rect.left) - imgX; startDragY = (touch.clientY - rect.top) - imgY; }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => { if(!isDragging || !sniperImg || e.touches.length > 1) return; e.preventDefault(); const touch = e.touches[0]; const rect = canvas.getBoundingClientRect(); imgX = (touch.clientX - rect.left) - startDragX; imgY = (touch.clientY - rect.top) - startDragY; drawSniper(); }, { passive: false });
+        canvas.addEventListener('touchend', () => { isDragging = false; }); canvas.addEventListener('touchcancel', () => { isDragging = false; });
+
+        function drawSniper() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); if(!sniperImg) return;
+            ctx.drawImage(sniperImg, 0, 0, sniperImg.width, sniperImg.height, imgX, imgY, sniperImg.width * imgScale, sniperImg.height * imgScale);
+
+            lines.forEach(line => {
+                const p1 = window.sniperPoints[line.p1]; const p2 = window.sniperPoints[line.p2];
+                const screenX1 = (p1.x * imgScale) + imgX; const screenY1 = (p1.y * imgScale) + imgY; const screenX2 = (p2.x * imgScale) + imgX; const screenY2 = (p2.y * imgScale) + imgY;
+                ctx.beginPath(); ctx.moveTo(screenX1, screenY1); ctx.lineTo(screenX2, screenY2); ctx.strokeStyle = '#0dcaf0'; ctx.lineWidth = 2; ctx.stroke();
+                const midX = (screenX1 + screenX2) / 2; const midY = (screenY1 + screenY2) / 2; const text = line.realLength + 'mm';
+                ctx.font = 'bold 12px -apple-system, sans-serif'; const textWidth = ctx.measureText(text).width;
+                ctx.fillStyle = 'rgba(9, 13, 19, 0.85)'; ctx.fillRect(midX - (textWidth / 2) - 8, midY - 12, textWidth + 16, 24);
+                ctx.fillStyle = '#f0f6fc'; ctx.fillText(text, midX - (textWidth / 2), midY + 4);
+            });
+
+            window.sniperPoints.forEach((p, index) => {
+                const screenX = (p.x * imgScale) + imgX; const screenY = (p.y * imgScale) + imgY;
+                ctx.beginPath(); ctx.arc(screenX, screenY, 4, 0, Math.PI * 2); ctx.fillStyle = (index === window.sniperPoints.length - 1 && window.sniperPoints.length % 2 !== 0) ? '#E50914' : '#8b949e'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+            });
+
+            const cx = canvas.width / 2; const cy = canvas.height / 2;
+            ctx.beginPath(); ctx.moveTo(cx - 20, cy); ctx.lineTo(cx + 20, cy); ctx.moveTo(cx, cy - 20); ctx.lineTo(cx, cy + 20); ctx.strokeStyle = 'rgba(229, 9, 20, 0.9)'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(229, 9, 20, 0.5)'; ctx.stroke();
+        }
+
+        markBtn?.addEventListener('click', (e) => {
+            e.preventDefault(); if(!sniperImg) return;
+            const cx = canvas.width / 2; const cy = canvas.height / 2;
+            window.sniperPoints.push({ x: (cx - imgX) / imgScale, y: (cy - imgY) / imgScale });
+            
+            if(window.sniperPoints.length > 0 && window.sniperPoints.length % 2 === 0) {
+                const p1Index = window.sniperPoints.length - 2; const p2Index = window.sniperPoints.length - 1;
+                const p1 = window.sniperPoints[p1Index]; const p2 = window.sniperPoints[p2Index];
+                const pixelDist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+                
+                if(!calibrationRatio) {
+                    const realWorld = prompt("CALIBRATION MODE: Enter the length of this line (in mm):");
+                    if(realWorld && !isNaN(realWorld)) {
+                        calibrationRatio = parseFloat(realWorld) / pixelDist; lines.push({ p1: p1Index, p2: p2Index, realLength: realWorld });
+                        markBtn.innerText = "🎯 Drop Pin (Calibrated)"; markBtn.style.backgroundColor = "#238636"; markBtn.style.color = "#fff";
+                    } else window.sniperPoints.pop(); 
+                } else {
+                    const calculatedLength = Math.round(pixelDist * calibrationRatio);
+                    const finalLength = prompt("Calculated measurement (mm). Edit if needed:", calculatedLength);
+                    if(finalLength && !isNaN(finalLength)) lines.push({ p1: p1Index, p2: p2Index, realLength: Math.round(finalLength) });
+                    else window.sniperPoints.pop(); 
+                }
+            } drawSniper();
+        });
+
+        el('btn-sniper-clear')?.addEventListener('click', (e) => { e.preventDefault(); window.sniperPoints = []; lines = []; calibrationRatio = null; resetMarkButton(); drawSniper(); });
+        function resetMarkButton() { if (markBtn) { markBtn.innerText = "🎯 Drop Target Pin"; markBtn.style.backgroundColor = ""; markBtn.style.color = ""; } }
+
+        el('saveMarkupBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(currentMarkupIndex !== null) {
+                const newDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                stagingImages[currentMarkupIndex].src = newDataUrl;
+                stagingImages[currentMarkupIndex].hasMarkup = true;
+                renderStagingList();
+                closeSniperModal();
+            }
+        });
+
+        document.getElementById('planningPerms')?.addEventListener('change', (e) => { const cb = document.getElementById('cb-planning'); if(cb) cb.checked = (e.target.value !== 'Permitted Development (No Action)' && e.target.value !== ''); });
+        document.getElementById('sapCalcs')?.addEventListener('change', (e) => { const cb = document.getElementById('cb-sap'); if(cb) cb.checked = (e.target.value === 'Yes'); });
+        document.getElementById('roofType')?.addEventListener('change', (e) => { const cb = document.getElementById('cb-roof'); if(cb) cb.checked = (e.target.value !== ''); });
+    </script>
+</body>
+</html>
